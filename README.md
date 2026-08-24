@@ -10,6 +10,6 @@
 ## 🛠 Технологический стек
 - **Backend**: C#, .NET 10 Web API
 - **База данных**: PostgreSQL, Entity Framework Core (EF Core)
-- **Фронтенд **: React + TypeScript + Zustand
+- **Фронтенд**: React + TypeScript + Zustand
 - **ИИ-интеграция**: Ollama 
 - **Инструменты**: Visual Studio, Git / GitHub, REST API (`.http` файлы)
