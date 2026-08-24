@@ -9,8 +9,7 @@
 
 ## 🛠 Технологический стек
 - **Backend**: C#, .NET 10 Web API
-- **Архитектура**: Clean Architecture (Domain, Application, Infrastructure, Presentation)
 - **База данных**: PostgreSQL, Entity Framework Core (EF Core)
-- **Фронтенд (планируется)**: React + TypeScript + Zustand
-- **ИИ-интеграция**: Ollama (локальная языковая модель для анализа продуктивности и генерации советов)
+- **Фронтенд **: React + TypeScript + Zustand
+- **ИИ-интеграция**: Ollama 
 - **Инструменты**: Visual Studio, Git / GitHub, REST API (`.http` файлы)
