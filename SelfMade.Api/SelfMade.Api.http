@@ -1,0 +1,17 @@
+@SelfMade.Api_HostAddress = http://localhost:5221
+
+### Получить список всех пользователей (GET)
+GET {{SelfMade.Api_HostAddress}}/api/users
+Accept: application/json
+
+###Создать нового пользователя (POST)
+POST {{SelfMade.Api_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "username": "Ivan",
+  "email": "ivan@test.com",
+  "password": "123"
+}
+
+###
