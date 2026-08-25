@@ -4,7 +4,12 @@ using SelfMade.Api.Infrastructure;
 using SelfMade.Api.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
+builder.Services.AddScoped<IMoodRepository, MoodRepository>();
+
 // 1. Подключаем PostgreSQL через EF Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>

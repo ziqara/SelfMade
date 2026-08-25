@@ -15,34 +15,34 @@ public class UsersController : ControllerBase
         _userRepository = userRepository;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+    // Получить профиль пользователя по ID: GET /api/users/{id}
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserResponseDto>> GetUserById(int id)
     {
-        var users = await _userRepository.GetAllUsersAsync();
-        return Ok(users);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<User>> CreateUser([FromBody] UserDto request)
-    {
-        var user = new User
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
         {
-            Username = request.Username,
-            Email = request.Email,
-            Password = request.Password,
-            CreatedAt = DateTime.UtcNow
+            return NotFound(new { message = "Пользователь не найден." });
+        }
+
+        // Возвращаем данные без пароля ради безопасности!
+        var response = new UserResponseDto
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            CreatedAt = user.CreatedAt
         };
 
-        await _userRepository.AddUserAsync(user);
-        await _userRepository.SaveChangesAsync();
-
-        return Ok(user);
+        return Ok(response);
     }
 }
 
-public class UserDto
+// DTO для безопасного ответа (без пароля в открытом виде)
+public class UserResponseDto
 {
+    public int Id { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
 }

@@ -33,11 +33,39 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
             });
 
-            // Точно так же можно настроить остальные таблицы по мере необходимости:
-            modelBuilder.Entity<Category>().ToTable("categories");
+            
+            modelBuilder.Entity<Category>(entity =>
+            {
+                entity.ToTable("categories");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Name).HasColumnName("name");
+                entity.Property(e => e.Description).HasColumnName("description");
+            });
+
             modelBuilder.Entity<UserInterest>().ToTable("user_interests");
-            modelBuilder.Entity<ActivityLog>().ToTable("activity_logs");
-            modelBuilder.Entity<MoodLog>().ToTable("mood_logs");
+
+            modelBuilder.Entity<ActivityLog>(entity =>
+            {
+                entity.ToTable("activity_logs");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.CategoryId).HasColumnName("category_id");
+                entity.Property(e => e.Title).HasColumnName("title");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity.Property(e => e.DurationMinutes).HasColumnName("duration_minutes");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            });
+
+            modelBuilder.Entity<MoodLog>(entity =>
+            {
+                entity.ToTable("mood_logs");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.Score).HasColumnName("score");
+                entity.Property(e => e.Note).HasColumnName("note");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            });
+
             modelBuilder.Entity<AiRecommendation>().ToTable("ai_recommendations");
         }
     }
