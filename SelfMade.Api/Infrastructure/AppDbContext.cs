@@ -40,6 +40,7 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.Id).HasColumnName("id");
                 entity.Property(e => e.Name).HasColumnName("name");
                 entity.Property(e => e.Description).HasColumnName("description");
+                entity.Property(e => e.Type).HasColumnName("type");
             });
 
             modelBuilder.Entity<UserInterest>().ToTable("user_interests");

@@ -25,7 +25,8 @@ public class CategoriesController : ControllerBase
         {
             Id = c.Id,
             Name = c.Name,
-            Description = c.Description
+            Description = c.Description,
+            Type = c.Type
         });
 
         return Ok(response);
@@ -37,7 +38,8 @@ public class CategoriesController : ControllerBase
         var category = new Category
         {
             Name = request.Name,
-            Description = request.Description
+            Description = request.Description,
+            Type = request.Type
         };
 
         await _categoryRepository.AddCategoryAsync(category);
@@ -53,6 +55,8 @@ public class CategoryDto
 {
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+
+    public string Type { get; set; } = string.Empty;
 }
 
 // DTO для отправки данных на фронтенд (чтение)
@@ -61,4 +65,5 @@ public class CategoryResponseDto
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+    public string Type { get; set; } = string.Empty;
 }

@@ -14,9 +14,21 @@ Content-Type: application/json
   "password": "123"
 }
 
-###
+### Создать категорию (чтобы было к чему привязывать активности)
+POST {{SelfMade.Api_HostAddress}}/api/categories
+Content-Type: application/json
 
-### Вход в систему (Проверка логина)
+{
+  "name": "Программирование",
+  "description": "Изучение C# и бэкенда",
+  "type": "Обучение"
+}
+
+### Посмотреть все категории (чтобы узнать их ID)
+GET {{SelfMade.Api_HostAddress}}/api/categories
+Accept: application/json
+
+### 1. Логин (чтобы получить токен)
 POST {{SelfMade.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
@@ -24,3 +36,25 @@ Content-Type: application/json
   "email": "test2@mail.com",
   "password": "123"
 }
+
+### 
+
+# ВСТАВЬ ТОКЕН СЮДА (скопируй из ответа на логин, БЕЗ КАВЫЧЕК)
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6ImI5ZGZkNTM1LWYwOGMtNGRmOS1hZjYwLTc5YTc0Mzg2NmQ1ZSIsImV4cCI6MTc4NzcxNjQ0NCwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.LR7oUDAr67MiFrS_nYOQ07f1LfhvpkEZcNeTOskHLvs
+
+### 2. Создать активность (Защищенный эндпоинт)
+POST {{SelfMade.Api_HostAddress}}/api/activities
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoryId": 3,
+  "title": "Изучал JWT",
+  "description": "Повесил замки на контроллеры",
+  "durationMinutes": 60
+}
+
+### 3. Получить мои активности (Защищенный эндпоинт)
+GET {{SelfMade.Api_HostAddress}}/api/activities/my
+Authorization: Bearer {{token}}
+Accept: application/json

@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
 
+[Authorize] // Без токена сюда не пустят!
 [Route("api/[controller]")]
 [ApiController]
 public class ActivitiesController : ControllerBase
@@ -15,18 +18,24 @@ public class ActivitiesController : ControllerBase
         _activityRepository = activityRepository;
     }
 
-    // Получить активности только конкретного пользователя
-    [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<ActivityResponseDto>>> GetByUserId(int userId)
+    // Получить активности текущего пользователя (больше не передаем ID в URL)
+    [HttpGet("my")]
+    public async Task<ActionResult<IEnumerable<ActivityResponseDto>>> GetMyActivities()
     {
+        // Достаем ID пользователя прямо из токена
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized(new { message = "Не удалось определить пользователя." });
+        }
+
         var activities = await _activityRepository.GetActivitiesByUserIdAsync(userId);
 
-        // Превращаем (маппим) сущности из базы в безопасные DTO
         var response = activities.Select(a => new ActivityResponseDto
         {
             Id = a.Id,
             Title = a.Title,
-            Description = a.Description, // Если может быть null, добавь '?' в DTO
+            Description = a.Description,
             DurationMinutes = a.DurationMinutes,
             CreatedAt = a.CreatedAt
         });
@@ -38,9 +47,16 @@ public class ActivitiesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] ActivityDto request)
     {
+        // Достаем ID из токена для сохранения в базу
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId))
+        {
+            return Unauthorized();
+        }
+
         var activity = new ActivityLog
         {
-            UserId = request.UserId,
+            UserId = userId, // Берем из токена, а не от фронтенда!
             CategoryId = request.CategoryId,
             Title = request.Title,
             Description = request.Description,
@@ -55,17 +71,16 @@ public class ActivitiesController : ControllerBase
     }
 }
 
-// DTO для получения данных от фронтенда (создание)
+// DTO для создания (UserId отсюда удалили, он больше не нужен!)
 public class ActivityDto
 {
-    public int UserId { get; set; }
     public int CategoryId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }
 }
 
-// DTO для отправки данных на фронтенд (чтение)
+// DTO для ответа (без изменений)
 public class ActivityResponseDto
 {
     public int Id { get; set; }
