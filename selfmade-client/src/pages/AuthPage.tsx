@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { isAxiosError } from 'axios';
 import { Mail, Lock, User } from 'lucide-react';
-import { apiClient } from '../api/client'; // Твой настроенный axios
+import { apiClient, getApiErrorMessage } from '../api/client'; // Твой настроенный axios
 import { useAuthStore } from '../store/authStore'; // Твой Zustand стор
 import { toast } from '../store/toastStore';
 
@@ -44,8 +43,7 @@ export const AuthPage = () => {
       }
     } catch (error) {
       console.error('Ошибка API:', error);
-      const message = isAxiosError(error) ? error.response?.data?.message : undefined;
-      toast.error(message || 'Произошла ошибка. Попробуйте еще раз.');
+      toast.error(getApiErrorMessage(error) || 'Произошла ошибка. Попробуйте еще раз.');
     } finally {
       setIsSubmitting(false);
     }
@@ -64,11 +62,13 @@ export const AuthPage = () => {
               <User className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
               <input
                 type="text"
-                placeholder="Имя пользователя"
+                placeholder="Имя пользователя (минимум 3 символа)"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
                 required
+                minLength={3}
+                maxLength={50}
               />
             </div>
           )}
@@ -89,11 +89,13 @@ export const AuthPage = () => {
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="password"
-              placeholder="Пароль"
+              placeholder={isLogin ? 'Пароль' : 'Пароль (минимум 6 символов)'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
               required
+              minLength={isLogin ? undefined : 6}
+              maxLength={100}
             />
           </div>
 

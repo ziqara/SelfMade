@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5221';
@@ -30,3 +30,31 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Достает читаемое сообщение об ошибке из ответа API — как из { message: "..." },
+// так и из стандартного ASP.NET Core ValidationProblemDetails ({ errors: { Field: ["..."] } }).
+export function getApiErrorMessage(error: unknown): string | undefined {
+  if (!isAxiosError(error)) return undefined;
+
+  const data = error.response?.data;
+  if (!data || typeof data !== 'object') return undefined;
+
+  if (typeof data.message === 'string' && data.message.trim()) {
+    return data.message;
+  }
+
+  if (data.errors && typeof data.errors === 'object') {
+    const messages = Object.values(data.errors as Record<string, unknown>)
+      .flat()
+      .filter((m): m is string => typeof m === 'string');
+    if (messages.length > 0) {
+      return messages.join(' ');
+    }
+  }
+
+  if (typeof data.title === 'string' && data.title.trim()) {
+    return data.title;
+  }
+
+  return undefined;
+}

@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { isAxiosError } from 'axios';
 import { useAuthStore } from '../store/authStore';
 import { OnboardingPage } from './OnboardingPage';
-import { apiClient } from '../api/client';
+import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
 import type { Category, Activity, Mood, DailyInsightResponse } from '../types';
 
@@ -74,7 +73,7 @@ export const DashboardPage = () => {
       loadDashboardData();
     } catch (error) {
       console.error('Ошибка сохранения настроения:', error);
-      toast.error('Не удалось сохранить настроение.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось сохранить настроение.');
     }
   };
 
@@ -89,7 +88,7 @@ export const DashboardPage = () => {
       loadDashboardData();
     } catch (error) {
       console.error('Ошибка сохранения активности:', error);
-      toast.error('Не удалось сохранить активность.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось сохранить активность.');
     }
   };
 
@@ -100,8 +99,7 @@ export const DashboardPage = () => {
       setAiInsight(response.data.insight);
     } catch (error) {
       console.error('Ошибка получения совета от ИИ:', error);
-      const message = isAxiosError(error) ? error.response?.data?.message : undefined;
-      toast.error(message || 'Не удалось получить совет от ИИ.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось получить совет от ИИ.');
     } finally {
       setIsAiLoading(false);
     }

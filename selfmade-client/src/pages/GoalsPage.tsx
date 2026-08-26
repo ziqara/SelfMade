@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiClient } from '../api/client';
+import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
 import { GoalPlanCard } from '../components/GoalPlanCard';
 import type { Category, UserInterest } from '../types';
@@ -48,7 +48,7 @@ export const GoalsPage = () => {
       loadData();
     } catch (error) {
       console.error('Ошибка при создании категории:', error);
-      toast.error('Ошибка при создании категории');
+      toast.error(getApiErrorMessage(error) || 'Ошибка при создании категории');
     }
   };
 
@@ -61,7 +61,7 @@ export const GoalsPage = () => {
       loadData();
     } catch (error) {
       console.error('Ошибка при добавлении цели:', error);
-      toast.error('Ошибка при добавлении цели');
+      toast.error(getApiErrorMessage(error) || 'Ошибка при добавлении цели');
     }
   };
 

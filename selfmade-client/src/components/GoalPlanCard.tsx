@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { isAxiosError } from 'axios';
 import { Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { apiClient } from '../api/client';
+import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
 import type { GoalPlanStep } from '../types';
 
@@ -24,7 +23,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
       setSteps(response.data);
     } catch (error) {
       console.error('Ошибка загрузки плана:', error);
-      toast.error('Не удалось загрузить план.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось загрузить план.');
     } finally {
       setIsLoading(false);
     }
@@ -46,8 +45,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
       toast.success('План от ИИ готов!');
     } catch (error) {
       console.error('Ошибка генерации плана:', error);
-      const message = isAxiosError(error) ? error.response?.data?.message : undefined;
-      toast.error(message || 'Не удалось составить план. Попробуйте еще раз.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось составить план. Попробуйте еще раз.');
     } finally {
       setIsGenerating(false);
     }
@@ -63,7 +61,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
       setSteps((prev) => prev?.map((s) => (s.id === stepId ? response.data : s)) ?? null);
     } catch (error) {
       console.error('Ошибка обновления шага:', error);
-      toast.error('Не удалось обновить шаг.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось обновить шаг.');
       loadPlan(); // откатываем к реальному состоянию с сервера
     }
   };

@@ -1,5 +1,5 @@
 import { useAuthStore } from '../store/authStore';
-import { apiClient } from '../api/client';
+import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
 import { ProfileForm, type ProfileFormValues } from '../components/ProfileForm';
 
@@ -23,7 +23,7 @@ export const ProfilePage = () => {
       await fetchProfile(); // Обновляем данные в глобальном хранилище
     } catch (error) {
       console.error('Ошибка:', error);
-      toast.error('Не удалось обновить профиль. Попробуйте еще раз.');
+      toast.error(getApiErrorMessage(error) || 'Не удалось обновить профиль. Попробуйте еще раз.');
     }
   };
 
