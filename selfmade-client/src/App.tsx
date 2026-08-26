@@ -3,6 +3,7 @@ import { useAuthStore } from './store/authStore';
 
 // Импортируем наши страницы и Layout
 import { Layout } from './components/Layout';
+import { ToastContainer } from './components/ToastContainer';
 import { AuthPage } from './pages/AuthPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HistoryPage } from './pages/HistoryPage';
@@ -14,6 +15,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* Если пользователь НЕ авторизован */}
         {!isAuthenticated ? (
@@ -27,7 +29,7 @@ function App() {
             <Route path="history" element={<HistoryPage />} />
             <Route path="goals" element={<GoalsPage />} />
             <Route path="profile" element={<ProfilePage />} />
-            
+
             {/* Защита от несуществующих страниц: перекидываем на главную */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

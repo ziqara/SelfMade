@@ -1,41 +1,18 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-
-interface Category {
-  id: number;
-  name: string;
-  type: string;
-}
-
-interface Activity {
-  id: number;
-  categoryId: number;
-  title: string;
-  description: string;
-  durationMinutes: number;
-  createdAt: string;
-}
-
-interface Mood {
-  id: number;
-  score: number;
-  note: string;
-  createdAt: string;
-}
+import type { Activity, Mood } from '../types';
 
 export const HistoryPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [moods, setMoods] = useState<Mood[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const [actRes, moodRes, catRes] = await Promise.all([
+        const [actRes, moodRes] = await Promise.all([
           apiClient.get<Activity[]>('/activities/my'),
           apiClient.get<Mood[]>('/moods/my'),
-          apiClient.get<Category[]>('/categories')
         ]);
 
         // Сортируем от новых к старым (по дате создания)
@@ -44,7 +21,6 @@ export const HistoryPage = () => {
 
         setActivities(sortedActivities);
         setMoods(sortedMoods);
-        setCategories(catRes.data);
       } catch (error) {
         console.error('Ошибка загрузки истории:', error);
       } finally {
@@ -55,14 +31,22 @@ export const HistoryPage = () => {
     loadHistory();
   }, []);
 
-  // Вспомогательная функция, чтобы находить имя категории по её ID
-  const getCategoryName = (id: number) => {
-    const cat = categories.find(c => c.id === id);
-    return cat ? cat.name : 'Без категории';
-  };
-
   if (isLoading) {
-    return <div className="p-8 text-gray-500">Загрузка истории...</div>;
+    return (
+      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100 animate-pulse">
+        <div className="h-8 w-64 bg-gray-200 rounded mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+          <div className="space-y-4">
+            <div className="h-24 bg-gray-100 rounded-xl" />
+            <div className="h-24 bg-gray-100 rounded-xl" />
+          </div>
+          <div className="space-y-4">
+            <div className="h-24 bg-gray-100 rounded-xl" />
+            <div className="h-24 bg-gray-100 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -70,13 +54,13 @@ export const HistoryPage = () => {
       <h1 className="text-3xl font-bold mb-8">История прогресса ⏳</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        
+
         {/* Колонка 1: История активностей */}
         <div>
           <h2 className="text-2xl font-bold text-green-700 mb-6 flex items-center gap-2">
             📝 Выполненные задачи
           </h2>
-          
+
           {activities.length === 0 ? (
             <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">История задач пока пуста.</p>
           ) : (
@@ -94,11 +78,11 @@ export const HistoryPage = () => {
                   )}
                   <div className="flex justify-between items-center text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
                     <span className="bg-gray-100 px-2 py-1 rounded text-gray-600">
-                      📂 {getCategoryName(act.categoryId)}
+                      📂 {act.categoryName ?? 'Без категории'}
                     </span>
                     <span>
-                      {new Date(act.createdAt).toLocaleDateString('ru-RU', { 
-                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' 
+                      {new Date(act.createdAt).toLocaleDateString('ru-RU', {
+                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                       })}
                     </span>
                   </div>
@@ -113,7 +97,7 @@ export const HistoryPage = () => {
           <h2 className="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
             🧠 Дневник настроения
           </h2>
-          
+
           {moods.length === 0 ? (
             <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">Дневник настроения пуст.</p>
           ) : (
@@ -127,8 +111,8 @@ export const HistoryPage = () => {
                       <span className="text-sm font-bold text-blue-800 ml-2">{mood.score}/5</span>
                     </span>
                     <span className="text-xs text-gray-500">
-                      {new Date(mood.createdAt).toLocaleDateString('ru-RU', { 
-                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' 
+                      {new Date(mood.createdAt).toLocaleDateString('ru-RU', {
+                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                       })}
                     </span>
                   </div>

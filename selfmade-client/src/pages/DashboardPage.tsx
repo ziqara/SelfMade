@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import { useAuthStore } from '../store/authStore';
 import { OnboardingPage } from './OnboardingPage';
 import { apiClient } from '../api/client';
-
-interface Category { id: number; name: string; type: string; }
-interface Activity { id: number; title: string; description: string; durationMinutes: number; createdAt: string; }
-interface Mood { id: number; score: number; note: string; createdAt: string; }
+import { toast } from '../store/toastStore';
+import type { Category, Activity, Mood, DailyInsightResponse } from '../types';
 
 export const DashboardPage = () => {
   const { profile, fetchProfile, isLoading } = useAuthStore();
-  
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [moods, setMoods] = useState<Mood[]>([]);
-  
+  const [isDataLoading, setIsDataLoading] = useState(true);
+
   const [moodScore, setMoodScore] = useState('5');
   const [moodNote, setMoodNote] = useState('');
 
@@ -22,7 +22,7 @@ export const DashboardPage = () => {
   const [duration, setDuration] = useState('60');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
 
-  const [aiInsight, setAiInsight] = useState('');
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
   const loadDashboardData = async () => {
@@ -40,12 +40,28 @@ export const DashboardPage = () => {
       setMoods(moodRes.data);
     } catch (error) {
       console.error('Ошибка загрузки данных:', error);
+      toast.error('Не удалось загрузить данные дашборда.');
+    } finally {
+      setIsDataLoading(false);
+    }
+  };
+
+  const loadCachedInsight = async () => {
+    try {
+      const response = await apiClient.get<DailyInsightResponse>('/analytics/daily');
+      setAiInsight(response.data.insight);
+    } catch (error) {
+      console.error('Ошибка загрузки совета от ИИ:', error);
     }
   };
 
   useEffect(() => {
+    // Эти функции переиспользуются после сабмита форм, а не только на маунте, поэтому определены на уровне компонента
+    /* eslint-disable react-hooks/set-state-in-effect */
     fetchProfile();
     loadDashboardData();
+    loadCachedInsight();
+    /* eslint-enable react-hooks/set-state-in-effect */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchProfile]);
 
@@ -54,9 +70,11 @@ export const DashboardPage = () => {
     try {
       await apiClient.post('/moods', { score: parseInt(moodScore), note: moodNote });
       setMoodNote('');
+      toast.success('Настроение записано!');
       loadDashboardData();
     } catch (error) {
-      alert('Ошибка сохранения');
+      console.error('Ошибка сохранения настроения:', error);
+      toast.error('Не удалось сохранить настроение.');
     }
   };
 
@@ -67,25 +85,45 @@ export const DashboardPage = () => {
         categoryId: parseInt(selectedCategoryId), title: activityTitle, description: activityDesc, durationMinutes: parseInt(duration)
       });
       setActivityTitle(''); setActivityDesc('');
+      toast.success('Активность добавлена!');
       loadDashboardData();
     } catch (error) {
-      alert('Ошибка сохранения');
+      console.error('Ошибка сохранения активности:', error);
+      toast.error('Не удалось сохранить активность.');
     }
   };
 
   const handleGetInsight = async () => {
     setIsAiLoading(true);
     try {
-      const response = await apiClient.get('/analytics/daily');
+      const response = await apiClient.post<DailyInsightResponse>('/analytics/daily');
       setAiInsight(response.data.insight);
     } catch (error) {
-      alert('Не удалось получить совет от ИИ.');
+      console.error('Ошибка получения совета от ИИ:', error);
+      const message = isAxiosError(error) ? error.response?.data?.message : undefined;
+      toast.error(message || 'Не удалось получить совет от ИИ.');
     } finally {
       setIsAiLoading(false);
     }
   };
 
-  if (isLoading) return <div>Загрузка...</div>;
+  if (isLoading || isDataLoading) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-8 animate-pulse">
+        <div className="h-9 w-72 bg-gray-200 rounded" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <div className="h-48 bg-gray-100 rounded-xl" />
+            <div className="h-56 bg-gray-100 rounded-xl" />
+          </div>
+          <div className="space-y-6">
+            <div className="h-16 bg-gray-100 rounded-xl" />
+            <div className="h-32 bg-gray-100 rounded-xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!profile) return <OnboardingPage />;
 
   const todayDateString = new Date().toLocaleDateString();
@@ -95,9 +133,9 @@ export const DashboardPage = () => {
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold mb-6">С возвращением! 👋</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        
+
         {/* Формы */}
         <div className="space-y-6">
           <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
@@ -134,11 +172,11 @@ export const DashboardPage = () => {
 
         {/* ИИ и Сводка */}
         <div className="space-y-6">
-          <button 
+          <button
             onClick={handleGetInsight} disabled={isAiLoading}
             className={`w-full text-white px-6 py-4 rounded-xl font-bold shadow-lg transition-all ${isAiLoading ? 'bg-purple-400 cursor-wait' : 'bg-purple-600 hover:bg-purple-700 hover:-translate-y-1'}`}
           >
-            {isAiLoading ? '✨ Анализирую день...' : '✨ Получить совет от ИИ на сегодня'}
+            {isAiLoading ? '✨ Анализирую день...' : aiInsight ? '🔄 Обновить совет от ИИ' : '✨ Получить совет от ИИ на сегодня'}
           </button>
 
           {aiInsight && (

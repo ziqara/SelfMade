@@ -1,18 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
-
-interface Category {
-  id: number;
-  name: string;
-  type: string;
-}
-
-interface UserInterest {
-  id: number;
-  categoryId: number;
-  title: string;
-  isDevelopmentGoal: boolean;
-}
+import { toast } from '../store/toastStore';
+import type { Category, UserInterest } from '../types';
 
 export const GoalsPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -44,6 +33,7 @@ export const GoalsPage = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- loadData переиспользуется после сабмита форм, не только на маунте
     loadData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -53,9 +43,11 @@ export const GoalsPage = () => {
     try {
       await apiClient.post('/categories', { name: categoryName, description: categoryDesc, type: categoryType });
       setCategoryName(''); setCategoryDesc(''); setCategoryType('Обучение');
+      toast.success('Категория создана!');
       loadData();
     } catch (error) {
-      alert('Ошибка при создании категории');
+      console.error('Ошибка при создании категории:', error);
+      toast.error('Ошибка при создании категории');
     }
   };
 
@@ -64,9 +56,11 @@ export const GoalsPage = () => {
     try {
       await apiClient.post('/userinterests', { categoryId: parseInt(selectedCategoryId), title: interestTitle, isDevelopmentGoal: isDevGoal });
       setInterestTitle('');
+      toast.success('Цель добавлена!');
       loadData();
     } catch (error) {
-      alert('Ошибка при добавлении цели');
+      console.error('Ошибка при добавлении цели:', error);
+      toast.error('Ошибка при добавлении цели');
     }
   };
 

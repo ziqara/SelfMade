@@ -1,19 +1,23 @@
 import { useState } from 'react';
+import { isAxiosError } from 'axios';
 import { Mail, Lock, User } from 'lucide-react';
 import { apiClient } from '../api/client'; // Твой настроенный axios
 import { useAuthStore } from '../store/authStore'; // Твой Zustand стор
+import { toast } from '../store/toastStore';
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Достаем функцию сохранения токена из хранилища
   const setToken = useAuthStore((state) => state.setToken);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       if (isLogin) {
@@ -22,11 +26,11 @@ export const AuthPage = () => {
           email,
           password
         });
-        
+
         // Магия Zustand: сохраняем токен, и приложение понимает, что мы авторизованы
         setToken(response.data.token);
-        alert('Успешный вход!');
-        
+        toast.success('Успешный вход!');
+
       } else {
         // Просто делаем await без сохранения в переменную
         await apiClient.post('/auth/register', {
@@ -34,13 +38,16 @@ export const AuthPage = () => {
           email,
           password
         });
-        
-        alert('Аккаунт создан! Теперь можно войти.');
+
+        toast.success('Аккаунт создан! Теперь можно войти.');
         setIsLogin(true); // Перекидываем на логин
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Ошибка API:', error);
-      alert(error.response?.data?.message || 'Произошла ошибка');
+      const message = isAxiosError(error) ? error.response?.data?.message : undefined;
+      toast.error(message || 'Произошла ошибка. Попробуйте еще раз.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,9 +99,12 @@ export const AuthPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+            disabled={isSubmitting}
+            className={`w-full text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-blue-200 ${
+              isSubmitting ? 'bg-blue-400 cursor-wait' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            {isLogin ? 'Войти' : 'Зарегистрироваться'}
+            {isSubmitting ? 'Секунду...' : isLogin ? 'Войти' : 'Зарегистрироваться'}
           </button>
         </form>
 

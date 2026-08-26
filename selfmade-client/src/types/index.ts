@@ -16,10 +16,18 @@ export interface UserProfile {
   dislikedRest?: string;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  description?: string;
+  type: string;
+}
+
 export interface Activity {
   id: number;
-  userId: number;
+  userId?: number;
   categoryId: number;
+  categoryName?: string | null;
   title: string;
   description: string;
   durationMinutes: number;
@@ -33,6 +41,13 @@ export interface Mood {
   createdAt: string;
 }
 
+export interface UserInterest {
+  id: number;
+  categoryId: number;
+  title: string;
+  isDevelopmentGoal: boolean;
+}
+
 export interface DailyInsightResponse {
-  insight: string;
+  insight: string | null;
 }

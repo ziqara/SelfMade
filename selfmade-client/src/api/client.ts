@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
-export const API_BASE_URL = 'http://localhost:5221'; // Твой порт бэкенда
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5221';
 
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -18,13 +19,13 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Если токен протух (401) — сбрасываем авторизацию
+// Если токен протух (401) — тихо сбрасываем авторизацию через стор,
+// без жесткой перезагрузки страницы (React сам покажет AuthPage)
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('selfmade_token');
-      window.location.reload();
+      useAuthStore.getState().logout();
     }
     return Promise.reject(error);
   }
