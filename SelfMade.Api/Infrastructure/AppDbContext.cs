@@ -95,10 +95,18 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
             });
 
-            // Реальная схема этой таблицы (по ERD) не совпадает с текущей C#-моделью,
-            // а миграций в репозитории нет, чтобы это сверить и безопасно поправить.
-            // Полный маппинг сознательно не делаем — см. GeminiAiService (кэш в памяти вместо этой таблицы).
-            modelBuilder.Entity<AiRecommendation>().ToTable("ai_recommendations");
+            modelBuilder.Entity<AiRecommendation>(entity =>
+            {
+                entity.ToTable("ai_recommendations");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.GoalId).HasColumnName("goal_id");
+                entity.Property(e => e.Title).HasColumnName("title");
+                entity.Property(e => e.Description).HasColumnName("description");
+                entity.Property(e => e.Status).HasColumnName("status");
+                entity.Property(e => e.CompletedAt).HasColumnName("completed_at");
+            });
         }
     }
 }

@@ -48,6 +48,14 @@ export interface UserInterest {
   isDevelopmentGoal: boolean;
 }
 
+export interface GoalPlanStep {
+  id: number;
+  title: string;
+  description: string;
+  status: 'pending' | 'completed';
+  completedAt: string | null;
+}
+
 export interface DailyInsightResponse {
   insight: string | null;
 }

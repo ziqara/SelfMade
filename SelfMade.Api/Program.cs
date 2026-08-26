@@ -38,6 +38,7 @@ builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
 builder.Services.AddScoped<IUserInterestRepository, UserInterestRepository>();
 builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+builder.Services.AddScoped<IGoalPlanRepository, GoalPlanRepository>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient("Gemini", client =>

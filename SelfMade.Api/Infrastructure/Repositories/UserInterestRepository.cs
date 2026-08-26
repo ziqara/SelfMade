@@ -20,6 +20,11 @@ public class UserInterestRepository : IUserInterestRepository
             .ToListAsync();
     }
 
+    public async Task<UserInterest?> GetByIdAsync(int id)
+    {
+        return await _context.UserInterests.FindAsync(id);
+    }
+
     public async Task AddInterestAsync(UserInterest interest)
     {
         await _context.UserInterests.AddAsync(interest);

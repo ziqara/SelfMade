@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../api/client';
 import { toast } from '../store/toastStore';
+import { GoalPlanCard } from '../components/GoalPlanCard';
 import type { Category, UserInterest } from '../types';
 
 export const GoalsPage = () => {
@@ -120,11 +121,16 @@ export const GoalsPage = () => {
             ) : (
               <ul className="space-y-3">
                 {interests.map(interest => (
-                  <li key={interest.id} className="p-4 bg-white border rounded-lg shadow-sm flex items-start gap-3">
-                    <span className={interest.isDevelopmentGoal ? 'text-orange-500 text-xl' : 'text-gray-400 text-xl'}>
-                      {interest.isDevelopmentGoal ? '🎯' : '📌'}
-                    </span>
-                    <span className="font-medium text-gray-800">{interest.title}</span>
+                  <li key={interest.id} className="p-4 bg-white border rounded-lg shadow-sm">
+                    <div className="flex items-start gap-3">
+                      <span className={interest.isDevelopmentGoal ? 'text-orange-500 text-xl' : 'text-gray-400 text-xl'}>
+                        {interest.isDevelopmentGoal ? '🎯' : '📌'}
+                      </span>
+                      <span className="font-medium text-gray-800">{interest.title}</span>
+                    </div>
+                    {interest.isDevelopmentGoal && (
+                      <GoalPlanCard goalId={interest.id} goalTitle={interest.title} />
+                    )}
                   </li>
                 ))}
               </ul>
