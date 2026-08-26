@@ -250,6 +250,14 @@ public class GeminiAiService : IAiService
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogError("Gemini API returned {StatusCode}: {Body}", response.StatusCode, responseString);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+            {
+                var retrySeconds = TryParseRetryDelaySeconds(responseString);
+                var suffix = retrySeconds.HasValue ? $" Попробуй снова примерно через {retrySeconds} сек." : " Попробуй снова чуть позже.";
+                throw new AiServiceException($"Исчерпана бесплатная квота запросов к ИИ на сегодня.{suffix}");
+            }
+
             throw new AiServiceException("ИИ-сервис вернул ошибку. Попробуйте еще раз позже.");
         }
 
@@ -286,5 +294,36 @@ public class GeminiAiService : IAiService
             _logger.LogError(ex, "Unexpected Gemini response shape: {Body}", responseString);
             throw new AiServiceException("ИИ-сервис вернул неожиданный ответ.", ex);
         }
+    }
+
+    // Google возвращает подсказку вида "retryDelay": "36s" в error.details[] при 429 — вытаскиваем секунды для понятного сообщения
+    private static int? TryParseRetryDelaySeconds(string responseBody)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(responseBody);
+            if (!doc.RootElement.TryGetProperty("error", out var error) || !error.TryGetProperty("details", out var details))
+            {
+                return null;
+            }
+
+            foreach (var detail in details.EnumerateArray())
+            {
+                if (detail.TryGetProperty("retryDelay", out var retryDelay) && retryDelay.ValueKind == JsonValueKind.String)
+                {
+                    var raw = retryDelay.GetString();
+                    if (raw != null && raw.EndsWith('s') && double.TryParse(raw.AsSpan(0, raw.Length - 1), out var seconds))
+                    {
+                        return (int)Math.Ceiling(seconds);
+                    }
+                }
+            }
+        }
+        catch (JsonException)
+        {
+            // не критично — просто покажем сообщение без точного времени ожидания
+        }
+
+        return null;
     }
 }
