@@ -12,6 +12,8 @@
 ## Технологический стек
 
 * **Backend**: C#, .NET Web API, Entity Framework Core (EF Core)
+* **Frontend**: React, TypeScript, Zustand
 * **База данных**: PostgreSQL 
 * **Безопасность**: BCrypt, JWT-based Authentication
 * **ИИ-интеграция**: Google Gemini API 
+* **Инструменты**: Visual Studio, GitHub, REST API 
