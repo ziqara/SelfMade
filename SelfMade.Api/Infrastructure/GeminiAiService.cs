@@ -1,8 +1,8 @@
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Caching.Memory;
 using SelfMade.Api.Application.Exceptions;
 using SelfMade.Api.Application.Interfaces;
-using SelfMade.Api.Domain;
 
 namespace SelfMade.Api.Infrastructure;
 
@@ -12,9 +12,9 @@ public class GeminiAiService : IAiService
     private readonly IMoodRepository _moodRepository;
     private readonly IUserInterestRepository _interestRepository;
     private readonly IUserProfileRepository _profileRepository;
-    private readonly IAiRecommendationRepository _recommendationRepository;
     private readonly IConfiguration _configuration;
     private readonly HttpClient _httpClient;
+    private readonly IMemoryCache _cache;
     private readonly ILogger<GeminiAiService> _logger;
 
     public GeminiAiService(
@@ -22,25 +22,31 @@ public class GeminiAiService : IAiService
         IMoodRepository moodRepository,
         IUserInterestRepository interestRepository,
         IUserProfileRepository profileRepository,
-        IAiRecommendationRepository recommendationRepository,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
+        IMemoryCache cache,
         ILogger<GeminiAiService> logger)
     {
         _activityRepository = activityRepository;
         _moodRepository = moodRepository;
         _interestRepository = interestRepository;
         _profileRepository = profileRepository;
-        _recommendationRepository = recommendationRepository;
         _configuration = configuration;
         _httpClient = httpClientFactory.CreateClient("Gemini");
+        _cache = cache;
         _logger = logger;
     }
 
-    public async Task<string?> GetCachedInsightAsync(int userId)
+    // В БД есть неиспользуемая таблица ai_recommendations, но ее реальная схема (по данным ERD)
+    // не совпадает с тем, что нужно для хранения текста совета, а миграций в репозитории нет,
+    // чтобы это проверить и безопасно исправить. Поэтому дневной совет кэшируется в памяти процесса
+    // (этого достаточно, чтобы не терять совет при обновлении страницы и не дергать Gemini лишний раз).
+    private static string CacheKey(int userId) => $"daily-insight:{userId}:{DateTime.UtcNow:yyyy-MM-dd}";
+
+    public Task<string?> GetCachedInsightAsync(int userId)
     {
-        var existing = await _recommendationRepository.GetForDateAsync(userId, DateTime.UtcNow);
-        return existing?.RecommendationText;
+        _cache.TryGetValue(CacheKey(userId), out string? cached);
+        return Task.FromResult(cached);
     }
 
     public async Task<string> GenerateDailyInsightAsync(int userId)
@@ -48,13 +54,8 @@ public class GeminiAiService : IAiService
         var prompt = await BuildPromptAsync(userId);
         var text = await CallGeminiAsync(prompt);
 
-        await _recommendationRepository.AddAsync(new AiRecommendation
-        {
-            UserId = userId,
-            RecommendationText = text,
-            CreatedAt = DateTime.UtcNow
-        });
-        await _recommendationRepository.SaveChangesAsync();
+        var midnightUtc = DateTime.UtcNow.Date.AddDays(1);
+        _cache.Set(CacheKey(userId), text, midnightUtc);
 
         return text;
     }
