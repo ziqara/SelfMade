@@ -70,3 +70,19 @@ Content-Type: application/json
 GET {{SelfMade.Api_HostAddress}}/api/analytics/daily
 Authorization: Bearer {{token}}
 Accept: application/json
+
+### Добавить цель развития (Защищено)
+POST {{SelfMade.Api_HostAddress}}/api/userinterests
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "categoryId": 3,
+  "title": "Стать Senior C# разработчиком",
+  "isDevelopmentGoal": true
+}
+
+### Посмотреть мои цели
+GET {{SelfMade.Api_HostAddress}}/api/userinterests/my
+Authorization: Bearer {{token}}
+Accept: application/json

@@ -43,7 +43,15 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.Type).HasColumnName("type");
             });
 
-            modelBuilder.Entity<UserInterest>().ToTable("user_interests");
+            modelBuilder.Entity<UserInterest>(entity =>
+            {
+                entity.ToTable("user_interests");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.CategoryId).HasColumnName("category_id");
+                entity.Property(e => e.Title).HasColumnName("title");
+                entity.Property(e => e.IsDevelopmentGoal).HasColumnName("is_development_goal");
+            });
 
             modelBuilder.Entity<ActivityLog>(entity =>
             {

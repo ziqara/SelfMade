@@ -15,6 +15,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
 builder.Services.AddScoped<IAiService, DummyAiService>();
+builder.Services.AddScoped<IUserInterestRepository, UserInterestRepository>();
 
 // Настройка JWT Аутентификации
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
