@@ -1,0 +1,38 @@
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface UserProfile {
+  id?: number;
+  userId?: number;
+  learningTrack: string;
+  currentLevel?: string;
+  freeTimeStart: string; // Формат "HH:mm:ss"
+  freeTimeEnd: string;
+  sleepTime: string;
+  preferredRest: string;
+  dislikedRest?: string;
+}
+
+export interface Activity {
+  id: number;
+  userId: number;
+  categoryId: number;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  createdAt: string;
+}
+
+export interface Mood {
+  id: number;
+  score: number;
+  note: string;
+  createdAt: string;
+}
+
+export interface DailyInsightResponse {
+  insight: string;
+}
