@@ -1,40 +1,61 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Infrastructure;
 using SelfMade.Api.Infrastructure.AiServices;
 using SelfMade.Api.Infrastructure.Repositories;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Регистрация сервисов и репозиториев
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
 builder.Services.AddScoped<IAiService, DummyAiService>();
 
-// 1. Подключаем PostgreSQL через EF Core
+// Настройка JWT Аутентификации
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+// Подключаем PostgreSQL через EF Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
 
-// 2. Используем встроенный в .NET 10 OpenAPI вместо старого Swagger
+// Используем встроенный в .NET 10 OpenAPI
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// 3. Настраиваем конвейер запросов
+// Настраиваем конвейер запросов (Порядок очень важен!)
+app.UseAuthentication();
+app.UseAuthorization();
+
 if (app.Environment.IsDevelopment())
 {
-    // В .NET 10 документация OpenAPI доступна по адресу /openapi/v1.json
-    // А интерактивный интерфейс можно посмотреть через Scalar или встроенные эндпоинты
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 
