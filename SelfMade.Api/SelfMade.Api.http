@@ -36,7 +36,7 @@ Content-Type: application/json
 ### 
 
 # ВСТАВЬ ТОКЕН СЮДА (скопируй из ответа на логин, БЕЗ КАВЫЧЕК)
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6IjA4NGZhMmU5LTFhMzMtNDZlMC05ZDAyLTRkODhjNTE0NTRhMyIsImV4cCI6MTc4NzcxNzE2MiwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.CqxjEkDDZnFkINCRAMPNM8xwCaiMLPcyjxnLmBWZZuc
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6IjYxZDQyYzMyLTU0NjYtNDExOC05ZDMxLTczYjA5NWE1MmYzYyIsImV4cCI6MTc4NzczMzM2MCwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.yEl7fExU_KRVJBJWqMRkI0r9fbkmE3gHRFzMlbtyVI4
 
 ### Создать активность (Защищенный эндпоинт)
 POST {{SelfMade.Api_HostAddress}}/api/activities
@@ -83,5 +83,26 @@ Content-Type: application/json
 
 ### Посмотреть мои цели
 GET {{SelfMade.Api_HostAddress}}/api/userinterests/my
+Authorization: Bearer {{token}}
+Accept: application/json
+
+
+### Сохранить анкету профиля
+POST {{SelfMade.Api_HostAddress}}/api/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "learningTrack": "C# ASP.NET Core, архитектура микросервисов, PostgreSQL",
+  "currentLevel": "Junior+",
+  "freeTimeStart": "19:30:00",
+  "freeTimeEnd": "23:00:00",
+  "sleepTime": "23:30:00",
+  "preferredRest": "Научно-фантастические фильмы (Sci-Fi), книги по психологии, вечерние пешие прогулки",
+  "dislikedRest": "Бег, шумные клубы, компьютерные игры"
+}
+
+### Получить персонализированный совет
+GET {{SelfMade.Api_HostAddress}}/api/analytics/daily
 Authorization: Bearer {{token}}
 Accept: application/json

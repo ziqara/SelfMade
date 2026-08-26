@@ -17,6 +17,7 @@ namespace SelfMade.Api.Infrastructure
         public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
         public DbSet<MoodLog> MoodLogs => Set<MoodLog>();
         public DbSet<AiRecommendation> AiRecommendations => Set<AiRecommendation>();
+        public DbSet<UserProfile> UserProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -33,7 +34,24 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
             });
 
-            
+            modelBuilder.Entity<UserProfile>(entity =>
+            {
+                entity.ToTable("user_profiles");
+                entity.HasKey(e => e.Id);
+
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.LearningTrack).HasColumnName("learning_track");
+                entity.Property(e => e.CurrentLevel).HasColumnName("current_level");
+                entity.Property(e => e.FreeTimeStart).HasColumnName("free_time_start");
+                entity.Property(e => e.FreeTimeEnd).HasColumnName("free_time_end");
+                entity.Property(e => e.SleepTime).HasColumnName("sleep_time");
+                entity.Property(e => e.PreferredRest).HasColumnName("preferred_rest");
+                entity.Property(e => e.DislikedRest).HasColumnName("disliked_rest");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+            });
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.ToTable("categories");

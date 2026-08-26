@@ -9,6 +9,7 @@ public class GeminiAiService : IAiService
     private readonly IActivityRepository _activityRepository;
     private readonly IMoodRepository _moodRepository;
     private readonly IUserInterestRepository _interestRepository;
+    private readonly IUserProfileRepository _profileRepository;
     private readonly IConfiguration _configuration;
     private readonly HttpClient _httpClient;
 
@@ -16,52 +17,69 @@ public class GeminiAiService : IAiService
         IActivityRepository activityRepository,
         IMoodRepository moodRepository,
         IUserInterestRepository interestRepository,
+        IUserProfileRepository profileRepository,
         IConfiguration configuration,
         HttpClient httpClient)
     {
         _activityRepository = activityRepository;
         _moodRepository = moodRepository;
         _interestRepository = interestRepository;
+        _profileRepository = profileRepository;
         _configuration = configuration;
         _httpClient = httpClient;
     }
 
     public async Task<string> GetDailyInsightAsync(int userId)
     {
-        // 1. Собираем контекст из базы данных
+        // 1. Сбор контекста из БД
         var activities = await _activityRepository.GetActivitiesByUserIdAsync(userId);
         var moods = await _moodRepository.GetMoodsByUserIdAsync(userId);
         var interests = await _interestRepository.GetInterestsByUserIdAsync(userId);
+        var profile = await _profileRepository.GetByUserIdAsync(userId);
 
         var today = DateTime.UtcNow.Date;
         var todayActivities = activities.Where(a => a.CreatedAt.Date == today).ToList();
         var todayMood = moods.Where(m => m.CreatedAt.Date == today).OrderByDescending(m => m.CreatedAt).FirstOrDefault();
         var developmentGoals = interests.Where(i => i.IsDevelopmentGoal).ToList();
 
-        // 2. Формируем промпт для реальной нейросети
+        // 2. Формирование промпта
         var promptBuilder = new StringBuilder();
-        promptBuilder.AppendLine("Ты — профессиональный ИИ-коучер по личной продуктивности. Проанализируй данные пользователя за сегодня и дай короткий, мотивирующий совет на русском языке.");
+
+        promptBuilder.AppendLine("Ты — персональный наставник по саморазвитию и тайм-менеджменту. Твоя задача — вести пользователя по пути обучения и помогать качественно восстанавливать силы исключительно в его свободное время.");
+        promptBuilder.AppendLine("ВАЖНЫЕ ПРАВИЛА:");
+        promptBuilder.AppendLine("1. Общайся в деловом, тактичном, но мотивирующем тоне. Обращайся на 'ты', без сленга и панибратства.");
+        promptBuilder.AppendLine("2. Всегда давай ТОЧНЫЕ, предметные рекомендации. Не используй общие фразы вроде 'почитай книгу' или 'поучи что-то'. Называй конкретную тему/паттерн для изучения и конкретное произведение/активность для отдыха.");
+        promptBuilder.AppendLine("3. Учитывай график пользователя: он занимается саморазвитием только в свои свободные часы.");
+
+        if (profile != null)
+        {
+            promptBuilder.AppendLine("ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ:");
+            promptBuilder.AppendLine($"- Вектор развития: {profile.LearningTrack}");
+            if (!string.IsNullOrEmpty(profile.CurrentLevel))
+                promptBuilder.AppendLine($"- Текущий уровень: {profile.CurrentLevel}");
+            promptBuilder.AppendLine($"- Свободное время: с {profile.FreeTimeStart:HH:mm} до {profile.FreeTimeEnd:HH:mm}");
+            promptBuilder.AppendLine($"- Время отхода ко сну: {profile.SleepTime:HH:mm}");
+            promptBuilder.AppendLine($"- Предпочтительный отдых/хобби: {profile.PreferredRest}");
+            if (!string.IsNullOrEmpty(profile.DislikedRest))
+                promptBuilder.AppendLine($"- Нежелательный отдых (не предлагать!): {profile.DislikedRest}");
+        }
 
         if (developmentGoals.Any())
         {
-            promptBuilder.AppendLine("Глобальные цели пользователя:");
+            promptBuilder.AppendLine("Глобальные цели:");
             foreach (var goal in developmentGoals)
                 promptBuilder.AppendLine($"- {goal.Title}");
         }
 
         if (todayMood != null)
         {
-            promptBuilder.AppendLine($"Настроение за сегодня: {todayMood.Score}/5. Заметка: {todayMood.Note}");
-        }
-        else
-        {
-            promptBuilder.AppendLine("Настроение сегодня не отмечено.");
+            promptBuilder.AppendLine($"Состояние сегодня: {todayMood.Score}/5 ({todayMood.Note}).");
         }
 
         if (todayActivities.Any())
         {
             int totalMinutes = todayActivities.Sum(a => a.DurationMinutes);
-            promptBuilder.AppendLine($"Выполненные активности за сегодня (всего {totalMinutes} мин.):");
+            promptBuilder.AppendLine($"Выполненные задачи сегодня (всего {totalMinutes} мин.):");
             foreach (var act in todayActivities)
             {
                 promptBuilder.AppendLine($"- {act.Title} ({act.DurationMinutes} мин.): {act.Description}");
@@ -69,12 +87,15 @@ public class GeminiAiService : IAiService
         }
         else
         {
-            promptBuilder.AppendLine("Пользователь еще не записал ни одной активности за сегодня.");
+            promptBuilder.AppendLine("Сегодня задачи еще не фиксировались.");
         }
 
-        promptBuilder.AppendLine("Дай конструктивную обратную связь, поддержи пользователя и соотнеси его действия с его целями.");
+        promptBuilder.AppendLine("СФОРМИРУЙ ОТВЕТ СТРОГО ПО СЛЕДУЮЩЕЙ СТРУКТУРЕ:");
+        promptBuilder.AppendLine("1. Краткий анализ дня (1-2 предложения).");
+        promptBuilder.AppendLine("2. **Следующий шаг в обучении**: конкретная тема, паттерн или практическая задача строго по его вектору развития с расчетом на его окно свободного времени.");
+        promptBuilder.AppendLine("3. **План восстановления**: точная рекомендация по отдыху (конкретный фильм/книга/формат прогулки) строго с учетом его предпочтений и времени сна.");
 
-        // 3. Отправляем запрос в Google Gemini API
+        // 3. Отправка запроса в Gemini API
         var apiKey = _configuration["Gemini:ApiKey"];
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={apiKey}";
 
@@ -97,8 +118,6 @@ public class GeminiAiService : IAiService
         try
         {
             var response = await _httpClient.PostAsync(url, jsonContent);
-
-            // Читаем текст ошибки от Google, если запрос неуспешный
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
@@ -108,7 +127,6 @@ public class GeminiAiService : IAiService
 
             using var doc = JsonDocument.Parse(responseString);
 
-            // Извлекаем текст ответа из структуры JSON ответа Google
             var text = doc.RootElement
                 .GetProperty("candidates")[0]
                 .GetProperty("content")

@@ -8,16 +8,29 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Регистрация сервисов и репозиториев
+// 1. Регистрация сервисов и репозиториев
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
+builder.Services.AddScoped<IUserInterestRepository, UserInterestRepository>();
+builder.Services.AddScoped<IUserProfileRepository, UserProfileRepository>();
+
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IAiService, GeminiAiService>();
-builder.Services.AddScoped<IUserInterestRepository, UserInterestRepository>();
 
-// Настройка JWT Аутентификации
+// 2. Настройка CORS для взаимодействия с React
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// 3. Настройка JWT Аутентификации
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -35,19 +48,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
-// Подключаем PostgreSQL через EF Core
+// 4. Подключение PostgreSQL через EF Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
-
-// Используем встроенный в .NET 10 OpenAPI
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Настраиваем конвейер запросов (Порядок очень важен!)
+// 5. Конвейер middleware (Порядок: CORS -> Auth -> Routing)
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -57,7 +70,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.MapControllers();
 
 app.Run();
