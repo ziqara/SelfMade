@@ -36,7 +36,7 @@ Content-Type: application/json
 ### 
 
 # ВСТАВЬ ТОКЕН СЮДА (скопируй из ответа на логин, БЕЗ КАВЫЧЕК)
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6ImI5ZGZkNTM1LWYwOGMtNGRmOS1hZjYwLTc5YTc0Mzg2NmQ1ZSIsImV4cCI6MTc4NzcxNjQ0NCwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.LR7oUDAr67MiFrS_nYOQ07f1LfhvpkEZcNeTOskHLvs
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6IjA4NGZhMmU5LTFhMzMtNDZlMC05ZDAyLTRkODhjNTE0NTRhMyIsImV4cCI6MTc4NzcxNzE2MiwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.CqxjEkDDZnFkINCRAMPNM8xwCaiMLPcyjxnLmBWZZuc
 
 ### Создать активность (Защищенный эндпоинт)
 POST {{SelfMade.Api_HostAddress}}/api/activities
