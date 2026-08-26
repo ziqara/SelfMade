@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
 
+[Authorize] // <-- Замок!
 [Route("api/[controller]")]
 [ApiController]
 public class MoodsController : ControllerBase
@@ -15,31 +18,26 @@ public class MoodsController : ControllerBase
         _moodRepository = moodRepository;
     }
 
-    // Получить дневник настроения только конкретного пользователя
-    [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<MoodResponseDto>>> GetByUserId(int userId)
+    [HttpGet("my")]
+    public async Task<ActionResult<IEnumerable<MoodLog>>> GetMyMoods()
     {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
         var moods = await _moodRepository.GetMoodsByUserIdAsync(userId);
-
-        var response = moods.Select(m => new MoodResponseDto
-        {
-            Id = m.Id,
-            Score = m.Score,
-            Note = m.Note,
-            CreatedAt = m.CreatedAt
-        });
-
-        return Ok(response);
+        return Ok(moods);
     }
 
-    // Создать новую запись настроения
     [HttpPost]
     public async Task<ActionResult> Create([FromBody] MoodDto request)
     {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
         var mood = new MoodLog
         {
-            UserId = request.UserId,
-            Score = request.Score,
+            UserId = userId,
+            Score = request.Score, // Оценка настроения (например, от 1 до 5)
             Note = request.Note,
             CreatedAt = DateTime.UtcNow
         };
@@ -47,23 +45,12 @@ public class MoodsController : ControllerBase
         await _moodRepository.AddMoodAsync(mood);
         await _moodRepository.SaveChangesAsync();
 
-        return Ok(new { message = "Настроение успешно записано!", moodId = mood.Id });
+        return Ok(new { message = "Настроение успешно записано!" });
     }
 }
 
-// DTO для создания (от фронтенда)
 public class MoodDto
 {
-    public int UserId { get; set; }
     public int Score { get; set; }
     public string Note { get; set; } = string.Empty;
-}
-
-// DTO для отправки на фронтенд (чтение)
-public class MoodResponseDto
-{
-    public int Id { get; set; }
-    public int Score { get; set; }
-    public string Note { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
 }

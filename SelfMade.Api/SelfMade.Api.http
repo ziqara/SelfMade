@@ -1,9 +1,5 @@
 @SelfMade.Api_HostAddress = http://localhost:5221
 
-### Получить совет от ИИ за сегодняшний день
-GET {{SelfMade.Api_HostAddress}}/api/analytics/daily/1
-Accept: application/json
-
 ### Регистрация нового пользователя (Проверка шифрования)
 POST {{SelfMade.Api_HostAddress}}/api/auth/register
 Content-Type: application/json
@@ -28,7 +24,7 @@ Content-Type: application/json
 GET {{SelfMade.Api_HostAddress}}/api/categories
 Accept: application/json
 
-### 1. Логин (чтобы получить токен)
+### Логин (чтобы получить токен)
 POST {{SelfMade.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
@@ -42,7 +38,7 @@ Content-Type: application/json
 # ВСТАВЬ ТОКЕН СЮДА (скопируй из ответа на логин, БЕЗ КАВЫЧЕК)
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0IiwiZW1haWwiOiJ0ZXN0MkBtYWlsLmNvbSIsImp0aSI6ImI5ZGZkNTM1LWYwOGMtNGRmOS1hZjYwLTc5YTc0Mzg2NmQ1ZSIsImV4cCI6MTc4NzcxNjQ0NCwiaXNzIjoiU2VsZk1hZGVBcGkiLCJhdWQiOiJTZWxmTWFkZUFwcCJ9.LR7oUDAr67MiFrS_nYOQ07f1LfhvpkEZcNeTOskHLvs
 
-### 2. Создать активность (Защищенный эндпоинт)
+### Создать активность (Защищенный эндпоинт)
 POST {{SelfMade.Api_HostAddress}}/api/activities
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -54,7 +50,23 @@ Content-Type: application/json
   "durationMinutes": 60
 }
 
-### 3. Получить мои активности (Защищенный эндпоинт)
+### Получить мои активности (Защищенный эндпоинт)
 GET {{SelfMade.Api_HostAddress}}/api/activities/my
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Записать настроение за сегодня (Защищено)
+POST {{SelfMade.Api_HostAddress}}/api/moods
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "score": 5,
+  "note": "Отличное настроение, API работает как часы!"
+}
+
+### Получить совет от ИИ на сегодня (Защищено)
+# Заметь, ID пользователя в ссылке больше нет!
+GET {{SelfMade.Api_HostAddress}}/api/analytics/daily
 Authorization: Bearer {{token}}
 Accept: application/json
