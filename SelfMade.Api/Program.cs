@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Infrastructure;
-using SelfMade.Api.Infrastructure.AiServices;
 using SelfMade.Api.Infrastructure.Repositories;
 using System.Text;
 
@@ -14,7 +13,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
-builder.Services.AddScoped<IAiService, DummyAiService>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IAiService, GeminiAiService>();
 builder.Services.AddScoped<IUserInterestRepository, UserInterestRepository>();
 
 // Настройка JWT Аутентификации
