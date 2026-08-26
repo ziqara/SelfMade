@@ -2,9 +2,10 @@
 using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
-namespace SelfMade.Api.Controllers;
+namespace SelfMade.Api.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -62,16 +63,18 @@ public class ProfileController : ControllerBase
             await _profileRepository.UpdateAsync(existing);
         }
 
+        await _profileRepository.SaveChangesAsync();
+
         return Ok(new { message = "Профиль успешно сохранен." });
     }
 }
 
 public record SaveProfileRequest(
-    string LearningTrack,
-    string? CurrentLevel,
+    [Required, MaxLength(200)] string LearningTrack,
+    [MaxLength(100)] string? CurrentLevel,
     TimeOnly FreeTimeStart,
     TimeOnly FreeTimeEnd,
     TimeOnly SleepTime,
-    string PreferredRest,
-    string? DislikedRest
+    [Required, MaxLength(500)] string PreferredRest,
+    [MaxLength(500)] string? DislikedRest
 );

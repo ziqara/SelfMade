@@ -7,5 +7,6 @@ namespace SelfMade.Api.Application.Interfaces
         Task<UserProfile?> GetByUserIdAsync(int userId);
         Task AddAsync(UserProfile profile);
         Task UpdateAsync(UserProfile profile);
+        Task SaveChangesAsync();
     }
 }

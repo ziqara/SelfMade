@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
 
+[Authorize] // <-- Замок! Без токена сюда не пустят
 [Route("api/[controller]")]
 [ApiController]
 public class UsersController : ControllerBase
@@ -19,6 +22,14 @@ public class UsersController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<UserResponseDto>> GetUserById(int id)
     {
+        // Разрешаем смотреть только собственную карточку, чтобы нельзя было
+        // перебором ID собирать чужие username/email/дату регистрации
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(currentUserId, out int userId) || userId != id)
+        {
+            return Forbid();
+        }
+
         var user = await _userRepository.GetByIdAsync(id);
         if (user == null)
         {

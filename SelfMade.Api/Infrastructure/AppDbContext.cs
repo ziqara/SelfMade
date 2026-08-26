@@ -28,10 +28,11 @@ namespace SelfMade.Api.Infrastructure
             {
                 entity.ToTable("users");
                 entity.Property(e => e.Id).HasColumnName("id");
-                entity.Property(e => e.Username).HasColumnName("username");
-                entity.Property(e => e.Email).HasColumnName("email");
-                entity.Property(e => e.Password).HasColumnName("password");
+                entity.Property(e => e.Username).HasColumnName("username").HasMaxLength(50);
+                entity.Property(e => e.Email).HasColumnName("email").HasMaxLength(100);
+                entity.Property(e => e.Password).HasColumnName("password").HasMaxLength(100);
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.HasIndex(e => e.Email).IsUnique();
             });
 
             modelBuilder.Entity<UserProfile>(entity =>
@@ -94,7 +95,14 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
             });
 
-            modelBuilder.Entity<AiRecommendation>().ToTable("ai_recommendations");
+            modelBuilder.Entity<AiRecommendation>(entity =>
+            {
+                entity.ToTable("ai_recommendations");
+                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.RecommendationText).HasColumnName("recommendation_text");
+                entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            });
         }
     }
 }

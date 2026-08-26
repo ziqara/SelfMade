@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
@@ -34,6 +35,8 @@ public class ActivitiesController : ControllerBase
         var response = activities.Select(a => new ActivityResponseDto
         {
             Id = a.Id,
+            CategoryId = a.CategoryId,
+            CategoryName = a.Category?.Name,
             Title = a.Title,
             Description = a.Description,
             DurationMinutes = a.DurationMinutes,
@@ -74,16 +77,25 @@ public class ActivitiesController : ControllerBase
 // DTO для создания (UserId отсюда удалили, он больше не нужен!)
 public class ActivityDto
 {
+    [Range(1, int.MaxValue, ErrorMessage = "Выберите категорию.")]
     public int CategoryId { get; set; }
+
+    [Required, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
+
+    [MaxLength(2000)]
     public string Description { get; set; } = string.Empty;
+
+    [Range(1, 1440, ErrorMessage = "Длительность должна быть от 1 до 1440 минут.")]
     public int DurationMinutes { get; set; }
 }
 
-// DTO для ответа (без изменений)
+// DTO для ответа
 public class ActivityResponseDto
 {
     public int Id { get; set; }
+    public int CategoryId { get; set; }
+    public string? CategoryName { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.IdentityModel.Tokens;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -10,6 +12,7 @@ namespace SelfMade.Api.Presentation.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[EnableRateLimiting("auth")]
 public class AuthController : ControllerBase
 {
     private readonly IUserRepository _userRepository;
@@ -89,13 +92,21 @@ public class AuthController : ControllerBase
 
 public class LoginDto
 {
+    [Required, EmailAddress]
     public string Email { get; set; } = string.Empty;
+
+    [Required]
     public string Password { get; set; } = string.Empty;
 }
 
 public class UserDto
 {
+    [Required, MinLength(3), MaxLength(50)]
     public string Username { get; set; } = string.Empty;
+
+    [Required, EmailAddress, MaxLength(100)]
     public string Email { get; set; } = string.Empty;
+
+    [Required, MinLength(6), MaxLength(100)]
     public string Password { get; set; } = string.Empty;
 }

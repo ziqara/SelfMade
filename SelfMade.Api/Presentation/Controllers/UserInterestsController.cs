@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
@@ -51,7 +52,11 @@ public class UserInterestsController : ControllerBase
 
 public class UserInterestDto
 {
+    [Range(1, int.MaxValue, ErrorMessage = "Выберите категорию.")]
     public int CategoryId { get; set; }
+
+    [Required, MaxLength(200)]
     public string Title { get; set; } = string.Empty;
+
     public bool IsDevelopmentGoal { get; set; }
 }

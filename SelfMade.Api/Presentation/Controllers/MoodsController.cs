@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
@@ -51,6 +52,9 @@ public class MoodsController : ControllerBase
 
 public class MoodDto
 {
+    [Range(1, 5, ErrorMessage = "Оценка должна быть от 1 до 5.")]
     public int Score { get; set; }
+
+    [Required, MaxLength(1000)]
     public string Note { get; set; } = string.Empty;
 }

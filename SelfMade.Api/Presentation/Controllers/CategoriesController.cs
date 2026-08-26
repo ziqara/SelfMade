@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.ComponentModel.DataAnnotations;
 
 namespace SelfMade.Api.Presentation.Controllers;
 
+[Authorize] // <-- Замок! Раньше сюда мог писать кто угодно без токена
 [Route("api/[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
@@ -53,9 +56,13 @@ public class CategoriesController : ControllerBase
 // DTO для создания категории (от фронтенда)
 public class CategoryDto
 {
+    [Required, MaxLength(50)]
     public string Name { get; set; } = string.Empty;
+
+    [MaxLength(500)]
     public string Description { get; set; } = string.Empty;
 
+    [Required, MaxLength(50)]
     public string Type { get; set; } = string.Empty;
 }
 

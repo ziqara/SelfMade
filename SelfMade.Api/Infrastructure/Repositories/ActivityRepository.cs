@@ -26,7 +26,7 @@ public class ActivityRepository : IActivityRepository
     {
         return await _context.ActivityLogs
         .Where(a => a.UserId == userId)
-        // .Include(a => a.Category)  <-- Временно отключили
+        .Include(a => a.Category)
         .ToListAsync();
     }
 
