@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
+using System.Linq;
 
 namespace SelfMade.Api.Infrastructure.Repositories;
 
@@ -24,9 +25,9 @@ public class ActivityRepository : IActivityRepository
     public async Task<IEnumerable<ActivityLog>> GetActivitiesByUserIdAsync(int userId)
     {
         return await _context.ActivityLogs
-            .Where(a => a.UserId == userId)
-            .Include(a => a.Category)
-            .ToListAsync();
+        .Where(a => a.UserId == userId)
+        // .Include(a => a.Category)  <-- Временно отключили
+        .ToListAsync();
     }
 
     public async Task AddActivityAsync(ActivityLog activity)

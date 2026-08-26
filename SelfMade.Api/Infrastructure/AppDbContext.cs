@@ -54,6 +54,7 @@ namespace SelfMade.Api.Infrastructure
                 entity.Property(e => e.Description).HasColumnName("description");
                 entity.Property(e => e.DurationMinutes).HasColumnName("duration_minutes");
                 entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+                entity.Property(e => e.IsProductive).HasColumnName("is_productive");
             });
 
             modelBuilder.Entity<MoodLog>(entity =>

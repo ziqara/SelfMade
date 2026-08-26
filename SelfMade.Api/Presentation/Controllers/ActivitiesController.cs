@@ -15,22 +15,28 @@ public class ActivitiesController : ControllerBase
         _activityRepository = activityRepository;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ActivityLog>>> GetAll()
-    {
-        var activities = await _activityRepository.GetAllActivitiesAsync();
-        return Ok(activities);
-    }
-
+    // Получить активности только конкретного пользователя
     [HttpGet("user/{userId}")]
-    public async Task<ActionResult<IEnumerable<ActivityLog>>> GetByUserId(int userId)
+    public async Task<ActionResult<IEnumerable<ActivityResponseDto>>> GetByUserId(int userId)
     {
         var activities = await _activityRepository.GetActivitiesByUserIdAsync(userId);
-        return Ok(activities);
+
+        // Превращаем (маппим) сущности из базы в безопасные DTO
+        var response = activities.Select(a => new ActivityResponseDto
+        {
+            Id = a.Id,
+            Title = a.Title,
+            Description = a.Description, // Если может быть null, добавь '?' в DTO
+            DurationMinutes = a.DurationMinutes,
+            CreatedAt = a.CreatedAt
+        });
+
+        return Ok(response);
     }
 
+    // Создать новую активность
     [HttpPost]
-    public async Task<ActionResult<ActivityLog>> Create([FromBody] ActivityDto request)
+    public async Task<ActionResult> Create([FromBody] ActivityDto request)
     {
         var activity = new ActivityLog
         {
@@ -45,10 +51,11 @@ public class ActivitiesController : ControllerBase
         await _activityRepository.AddActivityAsync(activity);
         await _activityRepository.SaveChangesAsync();
 
-        return Ok(activity);
+        return Ok(new { message = "Активность успешно добавлена!", activityId = activity.Id });
     }
 }
 
+// DTO для получения данных от фронтенда (создание)
 public class ActivityDto
 {
     public int UserId { get; set; }
@@ -56,4 +63,14 @@ public class ActivityDto
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }
+}
+
+// DTO для отправки данных на фронтенд (чтение)
+public class ActivityResponseDto
+{
+    public int Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public int DurationMinutes { get; set; }
+    public DateTime CreatedAt { get; set; }
 }

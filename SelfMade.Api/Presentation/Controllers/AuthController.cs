@@ -15,57 +15,60 @@ public class AuthController : ControllerBase
         _userRepository = userRepository;
     }
 
-    // Регистрация: POST /api/auth/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto request)
+    public async Task<ActionResult> Register([FromBody] UserDto request)
     {
-        // Проверяем, не занят ли email
+        // Проверяем, свободен ли email
         var existingUser = await _userRepository.GetByEmailAsync(request.Email);
         if (existingUser != null)
         {
-            return BadRequest(new { message = "Пользователь с такой почтой уже существует." });
+            return BadRequest(new { message = "Пользователь с таким email уже существует." });
         }
+
+        // Хэшируем пароль перед сохранением в БД!
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
         var user = new User
         {
             Username = request.Username,
             Email = request.Email,
-            Password = request.Password, // В будущем здесь будет хэширование!
+            Password = passwordHash, // Сохраняем "абракадабру", а не реальный пароль
             CreatedAt = DateTime.UtcNow
         };
 
         await _userRepository.AddUserAsync(user);
-        await _userRepository.SaveChangesAsync(); // или SaveChangesAsync() в зависимости от твоего метода
+        await _userRepository.SaveChangesAsync();
 
-        return Ok(new { message = "Регистрация прошла успешно!", userId = user.Id });
+        return Ok(new { message = "Регистрация успешна!" });
     }
 
-    // Вход: POST /api/auth/login
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto request)
+    public async Task<ActionResult> Login([FromBody] LoginDto request)
     {
         var user = await _userRepository.GetByEmailAsync(request.Email);
 
-        // Проверяем существование пользователя и пароль
-        if (user == null || user.Password != request.Password)
+        // Проверяем, существует ли пользователь и совпадает ли пароль
+        if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.Password))
         {
             return Unauthorized(new { message = "Неверный email или пароль." });
         }
 
-        return Ok(new { message = "Успешный вход!", userId = user.Id, username = user.Username });
+        // Скоро здесь появится выдача JWT-токена!
+        return Ok(new { message = "Успешный вход!", userId = user.Id });
     }
 }
 
-// DTO для передачи данных из запроса
-public class RegisterDto
+// DTO для входа
+public class LoginDto
 {
-    public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 }
 
-public class LoginDto
+// DTO для регистрации
+public class UserDto
 {
+    public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
 }

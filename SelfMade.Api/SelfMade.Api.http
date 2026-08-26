@@ -1,28 +1,26 @@
 @SelfMade.Api_HostAddress = http://localhost:5221
 
-### 1. Регистрация нового пользователя (POST)
+### Получить совет от ИИ за сегодняшний день
+GET {{SelfMade.Api_HostAddress}}/api/analytics/daily/1
+Accept: application/json
+
+### Регистрация нового пользователя (Проверка шифрования)
 POST {{SelfMade.Api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "Ivan",
-  "email": "ivan@test1.com",
-  "password": "1231"
+  "username": "SuperUser",
+  "email": "test2@mail.com",
+  "password": "123"
 }
 
 ###
 
-### 2. Вход в систему (POST)
+### Вход в систему (Проверка логина)
 POST {{SelfMade.Api_HostAddress}}/api/auth/login
 Content-Type: application/json
 
 {
-  "email": "ivan@test1.com",
-  "password": "1231"
+  "email": "test2@mail.com",
+  "password": "123"
 }
-
-###
-
-### 3. Получить профиль конкретного пользователя по ID (GET)
-GET {{SelfMade.Api_HostAddress}}/api/users/3
-Accept: application/json

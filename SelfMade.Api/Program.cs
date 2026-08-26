@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Infrastructure;
+using SelfMade.Api.Infrastructure.AiServices;
 using SelfMade.Api.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IActivityRepository, ActivityRepository>();
 builder.Services.AddScoped<IMoodRepository, MoodRepository>();
+builder.Services.AddScoped<IAiService, DummyAiService>();
 
 // 1. Подключаем PostgreSQL через EF Core
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

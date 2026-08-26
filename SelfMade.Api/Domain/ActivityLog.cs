@@ -14,7 +14,7 @@ public class ActivityLog
 
     public string Title { get; set; } = string.Empty; // Например: "Изучение Clean Architecture"
     public string Description { get; set; } = string.Empty;
-
+    public bool IsProductive { get; set; }
     public int DurationMinutes { get; set; } // Сколько времени потрачено (в минутах)
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
