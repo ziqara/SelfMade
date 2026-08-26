@@ -56,6 +56,14 @@ export interface GoalPlanStep {
   completedAt: string | null;
 }
 
+export interface NextStep {
+  goalId: number;
+  stepId: number;
+  goalTitle: string;
+  title: string;
+  description: string;
+}
+
 export interface DailyInsightResponse {
   insight: string | null;
 }

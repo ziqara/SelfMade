@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { OnboardingPage } from './OnboardingPage';
 import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
-import type { Category, Activity, Mood, DailyInsightResponse } from '../types';
+import { NextStepCard } from '../components/NextStepCard';
+import type { Category, Activity, Mood, DailyInsightResponse, NextStep } from '../types';
 
 export const DashboardPage = () => {
   const { profile, fetchProfile, isLoading } = useAuthStore();
@@ -20,9 +22,11 @@ export const DashboardPage = () => {
   const [activityDesc, setActivityDesc] = useState('');
   const [duration, setDuration] = useState('60');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
+  const [showFreeformActivity, setShowFreeformActivity] = useState(false);
 
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [nextStep, setNextStep] = useState<NextStep | null>(null);
 
   const loadDashboardData = async () => {
     try {
@@ -54,12 +58,22 @@ export const DashboardPage = () => {
     }
   };
 
+  const loadNextStep = async () => {
+    try {
+      const response = await apiClient.get<NextStep | null>('/analytics/next-step');
+      setNextStep(response.data);
+    } catch (error) {
+      console.error('Ошибка загрузки следующего шага плана:', error);
+    }
+  };
+
   useEffect(() => {
     // Эти функции переиспользуются после сабмита форм, а не только на маунте, поэтому определены на уровне компонента
     /* eslint-disable react-hooks/set-state-in-effect */
     fetchProfile();
     loadDashboardData();
     loadCachedInsight();
+    loadNextStep();
     /* eslint-enable react-hooks/set-state-in-effect */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchProfile]);
@@ -105,19 +119,19 @@ export const DashboardPage = () => {
     }
   };
 
+  const handleStepCompleted = () => {
+    loadNextStep();
+    loadDashboardData();
+  };
+
   if (isLoading || isDataLoading) {
     return (
       <div className="max-w-6xl mx-auto space-y-8 animate-pulse">
         <div className="h-9 w-72 bg-gray-200 rounded" />
+        <div className="h-48 bg-gray-100 rounded-xl" />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-6">
-            <div className="h-48 bg-gray-100 rounded-xl" />
-            <div className="h-56 bg-gray-100 rounded-xl" />
-          </div>
-          <div className="space-y-6">
-            <div className="h-16 bg-gray-100 rounded-xl" />
-            <div className="h-32 bg-gray-100 rounded-xl" />
-          </div>
+          <div className="h-56 bg-gray-100 rounded-xl" />
+          <div className="h-32 bg-gray-100 rounded-xl" />
         </div>
       </div>
     );
@@ -128,13 +142,45 @@ export const DashboardPage = () => {
   const todayActivities = activities.filter(a => new Date(a.createdAt).toLocaleDateString() === todayDateString);
   const todayMoods = moods.filter(m => new Date(m.createdAt).toLocaleDateString() === todayDateString);
 
+  // Форму "другая активность" прячем по умолчанию, если есть шаг плана — чтобы не отвлекать
+  // от основного сценария "выполнил шаг -> отметил". Без активного плана она открыта сразу.
+  const isFreeformActivityVisible = !nextStep || showFreeformActivity;
+
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      <h1 className="text-3xl font-bold mb-6">С возвращением! 👋</h1>
+      <h1 className="text-3xl font-bold mb-2">С возвращением! 👋</h1>
+
+      {/* ИИ: план на вечер + следующий шаг — один общий блок на всю ширину */}
+      <div className="rounded-2xl border border-purple-200 bg-purple-50 shadow-sm overflow-hidden">
+        <div className="p-6 md:p-8">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <h2 className="text-xl font-bold text-purple-900">✨ Твой план на вечер</h2>
+            <button
+              onClick={handleGetInsight}
+              disabled={isAiLoading}
+              className={`text-sm font-bold px-4 py-2 rounded-lg text-white transition-colors ${
+                isAiLoading ? 'bg-purple-300 cursor-wait' : 'bg-purple-600 hover:bg-purple-700'
+              }`}
+            >
+              {isAiLoading ? 'Анализирую день...' : aiInsight ? 'Обновить' : 'Получить совет от ИИ'}
+            </button>
+          </div>
+
+          {aiInsight ? (
+            <div className="whitespace-pre-wrap text-gray-800 leading-relaxed mt-4">{aiInsight}</div>
+          ) : (
+            <p className="text-purple-700 mt-4">
+              Нажми «Получить совет от ИИ», чтобы узнать, чем заняться сегодня вечером.
+            </p>
+          )}
+
+          {nextStep && <NextStepCard step={nextStep} onCompleted={handleStepCompleted} />}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-        {/* Формы */}
+        {/* Итоги дня */}
         <div className="space-y-6">
           <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
             <h2 className="text-xl font-bold mb-4 text-blue-900">Как настрой?</h2>
@@ -149,42 +195,40 @@ export const DashboardPage = () => {
           </div>
 
           <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-            <h2 className="text-xl font-bold mb-4 text-green-900">Что сделал полезного?</h2>
-            {categories.length === 0 ? (
-              <p className="text-red-500">Сначала создай категорию в разделе "Цели и Категории"!</p>
-            ) : (
-              <form onSubmit={handleActivitySubmit} className="space-y-4">
-                <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border p-3 rounded-lg bg-white">
-                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-                <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border p-3 rounded-lg" required />
-                <div className="flex items-center gap-4">
-                  <label className="font-medium">Минут:</label>
-                  <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border p-2 w-24 rounded-lg" />
-                </div>
-                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700">Добавить активность</button>
-              </form>
+            {nextStep && (
+              <button
+                onClick={() => setShowFreeformActivity((v) => !v)}
+                className="w-full flex items-center justify-between text-left"
+              >
+                <h2 className="text-xl font-bold text-green-900">Занимался чем-то ещё?</h2>
+                {isFreeformActivityVisible ? <ChevronUp size={20} className="text-green-700" /> : <ChevronDown size={20} className="text-green-700" />}
+              </button>
+            )}
+            {!nextStep && <h2 className="text-xl font-bold mb-4 text-green-900">Что сделал полезного?</h2>}
+
+            {isFreeformActivityVisible && (
+              categories.length === 0 ? (
+                <p className="text-red-500 mt-4">Сначала создай категорию в разделе "Цели и Категории"!</p>
+              ) : (
+                <form onSubmit={handleActivitySubmit} className="space-y-4 mt-4">
+                  <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border p-3 rounded-lg bg-white">
+                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  </select>
+                  <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border p-3 rounded-lg" required />
+                  <div className="flex items-center gap-4">
+                    <label className="font-medium">Минут:</label>
+                    <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border p-2 w-24 rounded-lg" />
+                  </div>
+                  <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700">Добавить активность</button>
+                </form>
+              )
             )}
           </div>
         </div>
 
-        {/* ИИ и Сводка */}
-        <div className="space-y-6">
-          <button
-            onClick={handleGetInsight} disabled={isAiLoading}
-            className={`w-full text-white px-6 py-4 rounded-xl font-bold shadow-lg transition-all ${isAiLoading ? 'bg-purple-400 cursor-wait' : 'bg-purple-600 hover:bg-purple-700 hover:-translate-y-1'}`}
-          >
-            {isAiLoading ? '✨ Анализирую день...' : aiInsight ? '🔄 Обновить совет от ИИ' : '✨ Получить совет от ИИ на сегодня'}
-          </button>
-
-          {aiInsight && (
-            <div className="p-6 bg-purple-50 border border-purple-200 rounded-xl shadow-sm">
-              <h3 className="font-bold text-purple-800 mb-3 text-lg">План на вечер:</h3>
-              <div className="whitespace-pre-wrap text-gray-800 leading-relaxed">{aiInsight}</div>
-            </div>
-          )}
-
-          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm mt-6">
+        {/* Прогресс */}
+        <div>
+          <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <h3 className="font-bold text-gray-800 mb-4 text-lg">Прогресс за сегодня</h3>
             <div className="space-y-3">
               <div className="flex justify-between text-sm">

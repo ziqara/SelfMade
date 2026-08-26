@@ -26,6 +26,14 @@ public class GoalPlanRepository : IGoalPlanRepository
         return await _context.AiRecommendations.FindAsync(id);
     }
 
+    public async Task<AiRecommendation?> GetNextPendingForUserAsync(int userId)
+    {
+        return await _context.AiRecommendations
+            .Where(r => r.UserId == userId && r.Status == "pending")
+            .OrderBy(r => r.Id)
+            .FirstOrDefaultAsync();
+    }
+
     public async Task AddRangeAsync(IEnumerable<AiRecommendation> steps)
     {
         await _context.AiRecommendations.AddRangeAsync(steps);
