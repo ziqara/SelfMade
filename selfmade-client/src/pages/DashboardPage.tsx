@@ -174,7 +174,7 @@ export const DashboardPage = () => {
             </p>
           )}
 
-          {nextStep && <NextStepCard step={nextStep} onCompleted={handleStepCompleted} />}
+          {nextStep && <NextStepCard key={nextStep.stepId} step={nextStep} onCompleted={handleStepCompleted} />}
         </div>
       </div>
 
@@ -182,17 +182,21 @@ export const DashboardPage = () => {
 
         {/* Итоги дня */}
         <div className="space-y-6">
-          <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-            <h2 className="text-xl font-bold mb-4 text-blue-900">Как настрой?</h2>
-            <form onSubmit={handleMoodSubmit} className="space-y-4">
-              <div className="flex items-center gap-4">
-                <label className="font-medium">Оценка (1-5):</label>
-                <input type="number" min="1" max="5" value={moodScore} onChange={e => setMoodScore(e.target.value)} className="border p-2 w-20 rounded-lg" />
-              </div>
-              <input type="text" placeholder="Короткая заметка..." value={moodNote} onChange={e => setMoodNote(e.target.value)} className="w-full border p-3 rounded-lg" required />
-              <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">Записать настроение</button>
-            </form>
-          </div>
+          {/* Пока есть активный шаг плана — настроение спрашиваем в конце сессии (см. NextStepCard),
+              а не отдельной формой, чтобы не задавать один и тот же вопрос дважды */}
+          {!nextStep && (
+            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
+              <h2 className="text-xl font-bold mb-4 text-blue-900">Как настрой?</h2>
+              <form onSubmit={handleMoodSubmit} className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <label className="font-medium">Оценка (1-5):</label>
+                  <input type="number" min="1" max="5" value={moodScore} onChange={e => setMoodScore(e.target.value)} className="border p-2 w-20 rounded-lg" />
+                </div>
+                <input type="text" placeholder="Короткая заметка..." value={moodNote} onChange={e => setMoodNote(e.target.value)} className="w-full border p-3 rounded-lg" required />
+                <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">Записать настроение</button>
+              </form>
+            </div>
+          )}
 
           <div className="bg-green-50 p-6 rounded-xl border border-green-100">
             {nextStep && (
