@@ -5,8 +5,8 @@ POST {{SelfMade.Api_HostAddress}}/api/auth/register
 Content-Type: application/json
 
 {
-  "username": "SuperUser",
-  "email": "test2@mail.com",
+  "username": "User",
+  "email": "test3@mail.com",
   "password": "123"
 }
 
