@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
 
-[Authorize] // <-- Замок! Раньше сюда мог писать кто угодно без токена
+[Authorize] // <-- Замок!
 [Route("api/[controller]")]
 [ApiController]
 public class CategoriesController : ControllerBase
@@ -18,12 +19,16 @@ public class CategoriesController : ControllerBase
         _categoryRepository = categoryRepository;
     }
 
+    // Категории личные — каждый пользователь видит и создает только свои,
+    // чтобы список не превращался в общую свалку из чужих категорий
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryResponseDto>>> GetCategories()
     {
-        var categories = await _categoryRepository.GetAllCategoriesAsync();
+        var userId = CurrentUserId();
+        if (userId == null) return Unauthorized();
 
-        // Маппим сущности в безопасные DTO
+        var categories = await _categoryRepository.GetByUserIdAsync(userId.Value);
+
         var response = categories.Select(c => new CategoryResponseDto
         {
             Id = c.Id,
@@ -38,10 +43,12 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateCategory([FromBody] CategoryDto request)
     {
-        // Категории общие для всех пользователей — если кто-то уже создал такую (без учета
-        // регистра), переиспользуем ее вместо дубля, чтобы не плодить "Программирование",
-        // "программирование", "ПРОГРАММИРОВАНИЕ" и т.п.
-        var existing = await _categoryRepository.GetByNameAsync(request.Name);
+        var userId = CurrentUserId();
+        if (userId == null) return Unauthorized();
+
+        // Если у этого же пользователя уже есть такая категория (без учета регистра) —
+        // переиспользуем ее вместо дубля.
+        var existing = await _categoryRepository.GetByNameAsync(userId.Value, request.Name);
         if (existing != null)
         {
             return Ok(new { message = "Такая категория уже есть, используем её.", categoryId = existing.Id });
@@ -49,6 +56,7 @@ public class CategoriesController : ControllerBase
 
         var category = new Category
         {
+            UserId = userId.Value,
             Name = request.Name,
             Description = request.Description,
             Type = request.Type
@@ -57,8 +65,13 @@ public class CategoriesController : ControllerBase
         await _categoryRepository.AddCategoryAsync(category);
         await _categoryRepository.SaveChangesAsync();
 
-        // Возвращаем сообщение и ID, как мы делали в других контроллерах
         return Ok(new { message = "Категория успешно создана!", categoryId = category.Id });
+    }
+
+    private int? CurrentUserId()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return int.TryParse(userIdString, out int userId) ? userId : null;
     }
 }
 

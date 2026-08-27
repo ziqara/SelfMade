@@ -33,15 +33,33 @@ const isPastTimeOfDay = (hhmmss: string) => {
   return Date.now() > target.getTime();
 };
 
+const MAX_SESSION_MS = 12 * 60 * 60 * 1000; // 12 часов — дольше явно забытая вкладка, а не реальная сессия
+
+// Сессия "дневная" по смыслу — если она стартовала вчера (или раньше) или идет
+// подозрительно долго, это забытая вкладка, а не реальная работа. Читаем localStorage
+// и сразу же чистим протухшую запись, чтобы дашборд не показывал зависший таймер.
+const readActiveSession = (): number | null => {
+  const saved = localStorage.getItem(SESSION_KEY);
+  if (!saved) return null;
+
+  const startedAt = parseInt(saved);
+  const startedOnDifferentDay = new Date(startedAt).toDateString() !== new Date().toDateString();
+  const tooLong = Date.now() - startedAt > MAX_SESSION_MS;
+
+  if (startedOnDifferentDay || tooLong) {
+    localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+
+  return startedAt;
+};
+
 // Одна кнопка "Начать/Закончить развиваться" на весь день вместо таймера на каждый шаг.
 // Во время сессии шаги плана отмечаются чек-листом, а настроение и рефлексия спрашиваются один раз, в конце.
 export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinished }: DaySessionCardProps) => {
-  const [startedAt, setStartedAt] = useState<number | null>(() => {
-    const saved = localStorage.getItem(SESSION_KEY);
-    return saved ? parseInt(saved) : null;
-  });
+  const [startedAt, setStartedAt] = useState<number | null>(() => readActiveSession());
   const [sessionState, setSessionState] = useState<SessionState>(() =>
-    localStorage.getItem(SESSION_KEY) ? 'active' : 'idle'
+    readActiveSession() !== null ? 'active' : 'idle'
   );
   const [elapsedSec, setElapsedSec] = useState(0);
   const [durationOverride, setDurationOverride] = useState('');
@@ -77,6 +95,26 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
     setElapsedSec(0);
     setCheckedThisSession(new Set());
     setSessionState('active');
+  };
+
+  const handleCancel = async () => {
+    // Отмена — это отмена всего: если во время сессии успели отметить шаги плана,
+    // они уже улетели на сервер как выполненные (тоггл шлется сразу при клике на чекбокс).
+    // Откатываем их обратно, иначе "Отмена" будет молча оставлять что-то сохраненным.
+    const toRevert = pendingSteps.filter((s) => checkedThisSession.has(s.stepId));
+    resetSession();
+
+    for (const step of toRevert) {
+      try {
+        await apiClient.post(`/userinterests/${step.goalId}/plan/${step.stepId}/toggle`);
+      } catch (error) {
+        console.error('Ошибка отката шага при отмене сессии:', error);
+      }
+    }
+
+    if (toRevert.length > 0) {
+      onFinished(); // обновляем список шагов/активностей — состояние на сервере изменилось
+    }
   };
 
   const handleFinishClick = () => {
@@ -183,7 +221,7 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
               <Square size={14} />
               Закончить развиваться
             </button>
-            <button onClick={resetSession} className="text-sm text-text-muted hover:text-text transition-colors">
+            <button onClick={handleCancel} className="text-sm text-text-muted hover:text-text transition-colors">
               Отмена
             </button>
           </div>
@@ -226,7 +264,7 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
         <div className="space-y-3 bg-surface-2 p-4 rounded-lg border border-border-subtle">
           <div className="flex items-center justify-between">
             <h4 className="heading-caps text-sm font-medium text-text">Как прошла сессия?</h4>
-            <button onClick={resetSession} className="text-text-muted hover:text-text" aria-label="Отменить">
+            <button onClick={handleCancel} className="text-text-muted hover:text-text" aria-label="Отменить">
               <X size={16} />
             </button>
           </div>

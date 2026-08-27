@@ -38,6 +38,11 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
   };
 
   const handleGenerate = async () => {
+    if (steps && steps.length > 0) {
+      const confirmed = window.confirm('Составить план заново? Текущие отметки о выполнении шагов будут потеряны.');
+      if (!confirmed) return;
+    }
+
     setIsGenerating(true);
     try {
       const response = await apiClient.post<GoalPlanStep[]>(`/userinterests/${goalId}/plan`);

@@ -57,6 +57,7 @@ namespace SelfMade.Api.Infrastructure
             {
                 entity.ToTable("categories");
                 entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.UserId).HasColumnName("user_id");
                 entity.Property(e => e.Name).HasColumnName("name");
                 entity.Property(e => e.Description).HasColumnName("description");
                 entity.Property(e => e.Type).HasColumnName("type");

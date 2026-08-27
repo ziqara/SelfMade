@@ -13,10 +13,12 @@ namespace SelfMade.Api.Presentation.Controllers;
 public class ActivitiesController : ControllerBase
 {
     private readonly IActivityRepository _activityRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public ActivitiesController(IActivityRepository activityRepository)
+    public ActivitiesController(IActivityRepository activityRepository, ICategoryRepository categoryRepository)
     {
         _activityRepository = activityRepository;
+        _categoryRepository = categoryRepository;
     }
 
     // Получить активности текущего пользователя (больше не передаем ID в URL)
@@ -55,6 +57,12 @@ public class ActivitiesController : ControllerBase
         if (!int.TryParse(userIdString, out int userId))
         {
             return Unauthorized();
+        }
+
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
+        if (category == null || category.UserId != userId)
+        {
+            return BadRequest(new { message = "Категория не найдена." });
         }
 
         var activity = new ActivityLog

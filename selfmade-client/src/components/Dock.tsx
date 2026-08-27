@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Home, CalendarDays, Target, Settings, LogOut } from 'lucide-react';
+import { Home, CalendarDays, Target, Settings, HelpCircle, LogOut } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 const NAV_ITEMS = [
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/history', end: false, icon: CalendarDays, label: 'История' },
   { to: '/goals', end: false, icon: Target, label: 'Цели и категории' },
   { to: '/profile', end: false, icon: Settings, label: 'Профиль' },
+  { to: '/help', end: false, icon: HelpCircle, label: 'Как это работает' },
 ];
 
 // Навигация в стиле Dock macOS: плавающая стеклянная панель внизу экрана, всегда на виду.

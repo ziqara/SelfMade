@@ -13,10 +13,12 @@ namespace SelfMade.Api.Presentation.Controllers;
 public class UserInterestsController : ControllerBase
 {
     private readonly IUserInterestRepository _repository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public UserInterestsController(IUserInterestRepository repository)
+    public UserInterestsController(IUserInterestRepository repository, ICategoryRepository categoryRepository)
     {
         _repository = repository;
+        _categoryRepository = categoryRepository;
     }
 
     [HttpGet("my")]
@@ -34,6 +36,12 @@ public class UserInterestsController : ControllerBase
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
+        var category = await _categoryRepository.GetByIdAsync(request.CategoryId);
+        if (category == null || category.UserId != userId)
+        {
+            return BadRequest(new { message = "Категория не найдена." });
+        }
 
         var interest = new UserInterest
         {

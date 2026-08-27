@@ -9,6 +9,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { GoalsPage } from './pages/GoalsPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { HelpPage } from './pages/HelpPage';
 
 function App() {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -29,6 +30,7 @@ function App() {
             <Route path="history" element={<HistoryPage />} />
             <Route path="goals" element={<GoalsPage />} />
             <Route path="profile" element={<ProfilePage />} />
+            <Route path="help" element={<HelpPage />} />
 
             {/* Защита от несуществующих страниц: перекидываем на главную */}
             <Route path="*" element={<Navigate to="/" replace />} />
