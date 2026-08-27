@@ -14,17 +14,20 @@ public class AnalyticsController : ControllerBase
     private readonly IAiService _aiService;
     private readonly IGoalPlanRepository _planRepository;
     private readonly IUserInterestRepository _interestRepository;
+    private readonly IActivityRepository _activityRepository;
     private readonly ILogger<AnalyticsController> _logger;
 
     public AnalyticsController(
         IAiService aiService,
         IGoalPlanRepository planRepository,
         IUserInterestRepository interestRepository,
+        IActivityRepository activityRepository,
         ILogger<AnalyticsController> logger)
     {
         _aiService = aiService;
         _planRepository = planRepository;
         _interestRepository = interestRepository;
+        _activityRepository = activityRepository;
         _logger = logger;
     }
 
@@ -87,6 +90,53 @@ public class AnalyticsController : ControllerBase
             return StatusCode(StatusCodes.Status502BadGateway, new { message = ex.Message });
         }
     }
+
+    // Сводка для вкладки "История": прогресс по каждой цели (сколько шагов плана выполнено)
+    // и лента достижений (уже выполненные шаги) — общая картина того, чему пользователь научился.
+    [HttpGet("summary")]
+    public async Task<ActionResult<UserSummaryDto>> GetSummary()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
+        var allSteps = await _planRepository.GetAllForUserAsync(userId);
+        var goals = await _interestRepository.GetInterestsByUserIdAsync(userId);
+        var goalTitles = goals.ToDictionary(g => g.Id, g => g.Title);
+
+        var goalsProgress = allSteps
+            .GroupBy(s => s.GoalId)
+            .Select(g => new GoalProgressDto
+            {
+                GoalId = g.Key,
+                GoalTitle = goalTitles.GetValueOrDefault(g.Key, "Цель"),
+                TotalSteps = g.Count(),
+                CompletedSteps = g.Count(s => s.Status == "completed")
+            })
+            .OrderByDescending(g => g.TotalSteps == 0 ? 0 : (double)g.CompletedSteps / g.TotalSteps)
+            .ToList();
+
+        var achievements = allSteps
+            .Where(s => s.Status == "completed")
+            .OrderByDescending(s => s.CompletedAt)
+            .Select(s => new AchievementDto
+            {
+                GoalTitle = goalTitles.GetValueOrDefault(s.GoalId, "Цель"),
+                Title = s.Title,
+                CompletedAt = s.CompletedAt
+            })
+            .ToList();
+
+        var activities = await _activityRepository.GetActivitiesByUserIdAsync(userId);
+        var activitiesList = activities.ToList();
+
+        return Ok(new UserSummaryDto
+        {
+            GoalsProgress = goalsProgress,
+            Achievements = achievements,
+            TotalActivities = activitiesList.Count,
+            TotalMinutes = activitiesList.Sum(a => a.DurationMinutes)
+        });
+    }
 }
 
 public class PendingStepDto
@@ -97,4 +147,27 @@ public class PendingStepDto
     public int CategoryId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
+}
+
+public class GoalProgressDto
+{
+    public int GoalId { get; set; }
+    public string GoalTitle { get; set; } = string.Empty;
+    public int TotalSteps { get; set; }
+    public int CompletedSteps { get; set; }
+}
+
+public class AchievementDto
+{
+    public string GoalTitle { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public DateTime? CompletedAt { get; set; }
+}
+
+public class UserSummaryDto
+{
+    public List<GoalProgressDto> GoalsProgress { get; set; } = new();
+    public List<AchievementDto> Achievements { get; set; } = new();
+    public int TotalActivities { get; set; }
+    public int TotalMinutes { get; set; }
 }

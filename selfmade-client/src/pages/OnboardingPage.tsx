@@ -18,8 +18,23 @@ export const OnboardingPage = () => {
         dislikedRest: values.dislikedRest,
       });
 
-      toast.success('Профиль успешно сохранен!');
       await fetchProfile();
+
+      // Профиль — это только вектор развития. Конкретные цели внутри него сразу
+      // подбирает ИИ, чтобы новый пользователь не должен был сам их придумывать
+      // и вручную заводить категории — это необязательный лучший случай, поэтому
+      // ошибка (например, исчерпанная квота ИИ) не должна ломать сам онбординг.
+      try {
+        const response = await apiClient.post<{ message: string; count: number }>('/userinterests/generate');
+        toast.success(
+          response.data.count > 0
+            ? `Профиль сохранен! ${response.data.message}`
+            : 'Профиль успешно сохранен!'
+        );
+      } catch (goalsError) {
+        console.error('Не удалось автоматически подобрать цели:', goalsError);
+        toast.success('Профиль успешно сохранен! Цели можно подобрать во вкладке «Цели и категории».');
+      }
     } catch (error) {
       console.error('Ошибка:', error);
       toast.error(getApiErrorMessage(error) || 'Не удалось сохранить профиль. Попробуйте еще раз.');

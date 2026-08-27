@@ -73,6 +73,9 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             placeholder="Junior+"
             className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
+          <p className="text-xs text-text-muted font-light mt-1.5">
+            Помогает ИИ подбирать цели и советы по силам, а не наугад.
+          </p>
         </div>
       </div>
 

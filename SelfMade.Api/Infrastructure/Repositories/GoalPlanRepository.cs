@@ -34,6 +34,14 @@ public class GoalPlanRepository : IGoalPlanRepository
             .ToListAsync();
     }
 
+    public async Task<List<AiRecommendation>> GetAllForUserAsync(int userId)
+    {
+        return await _context.AiRecommendations
+            .Where(r => r.UserId == userId)
+            .OrderBy(r => r.Id)
+            .ToListAsync();
+    }
+
     public async Task AddRangeAsync(IEnumerable<AiRecommendation> steps)
     {
         await _context.AiRecommendations.AddRangeAsync(steps);

@@ -68,3 +68,23 @@ export interface PendingStep {
 export interface DailyInsightResponse {
   insight: string | null;
 }
+
+export interface GoalProgress {
+  goalId: number;
+  goalTitle: string;
+  totalSteps: number;
+  completedSteps: number;
+}
+
+export interface Achievement {
+  goalTitle: string;
+  title: string;
+  completedAt: string | null;
+}
+
+export interface UserSummary {
+  goalsProgress: GoalProgress[];
+  achievements: Achievement[];
+  totalActivities: number;
+  totalMinutes: number;
+}

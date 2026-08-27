@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { ListChecks, Smile, FolderOpen } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ListChecks, Smile, FolderOpen, GraduationCap } from 'lucide-react';
 import { apiClient } from '../api/client';
-import type { Activity, Mood } from '../types';
-
-const moodColor = (score: number) =>
-  score >= 4 ? 'bg-green-400' : score === 3 ? 'bg-amber-400' : 'bg-red-400';
+import { moodColor } from '../utils/moodColor';
+import { toDateKey } from '../utils/date';
+import { HistoryCalendar } from '../components/HistoryCalendar';
+import { GoalProgressRing } from '../components/GoalProgressRing';
+import type { Activity, Mood, UserSummary } from '../types';
 
 const MoodDots = ({ score }: { score: number }) => (
   <div className="flex items-center gap-1.5" title={`Оценка: ${score} из 5`}>
@@ -20,14 +21,17 @@ const MoodDots = ({ score }: { score: number }) => (
 export const HistoryPage = () => {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [moods, setMoods] = useState<Mood[]>([]);
+  const [summary, setSummary] = useState<UserSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   useEffect(() => {
     const loadHistory = async () => {
       try {
-        const [actRes, moodRes] = await Promise.all([
+        const [actRes, moodRes, summaryRes] = await Promise.all([
           apiClient.get<Activity[]>('/activities/my'),
           apiClient.get<Mood[]>('/moods/my'),
+          apiClient.get<UserSummary>('/analytics/summary'),
         ]);
 
         // Сортируем от новых к старым (по дате создания)
@@ -36,6 +40,7 @@ export const HistoryPage = () => {
 
         setActivities(sortedActivities);
         setMoods(sortedMoods);
+        setSummary(summaryRes.data);
       } catch (error) {
         console.error('Ошибка загрузки истории:', error);
       } finally {
@@ -45,6 +50,15 @@ export const HistoryPage = () => {
 
     loadHistory();
   }, []);
+
+  const selectedDayActivities = useMemo(
+    () => (selectedDate ? activities.filter((a) => toDateKey(new Date(a.createdAt)) === selectedDate) : []),
+    [activities, selectedDate]
+  );
+  const selectedDayMoods = useMemo(
+    () => (selectedDate ? moods.filter((m) => toDateKey(new Date(m.createdAt)) === selectedDate) : []),
+    [moods, selectedDate]
+  );
 
   if (isLoading) {
     return (
@@ -67,6 +81,93 @@ export const HistoryPage = () => {
   return (
     <div className="max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
       <h1 className="heading-caps text-2xl font-light text-text mb-8">История прогресса</h1>
+
+      {summary && summary.goalsProgress.length > 0 && (
+        <div className="mb-10">
+          <h2 className="heading-caps text-sm font-medium text-rose-300 mb-4">Прогресс по целям</h2>
+          <div className="flex flex-wrap gap-6">
+            {summary.goalsProgress.map((g) => (
+              <GoalProgressRing key={g.goalId} title={g.goalTitle} completed={g.completedSteps} total={g.totalSteps} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
+        <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
+          <HistoryCalendar activities={activities} moods={moods} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+        </div>
+
+        {selectedDate ? (
+          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
+            <h2 className="heading-caps text-xs font-medium text-text mb-4">
+              {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </h2>
+            {selectedDayMoods.length === 0 && selectedDayActivities.length === 0 ? (
+              <p className="text-text-muted font-light text-sm">В этот день записей нет.</p>
+            ) : (
+              <div className="space-y-3">
+                {selectedDayMoods.map((mood) => (
+                  <div key={mood.id} className="bg-surface p-3 rounded-lg border border-border-subtle">
+                    <MoodDots score={mood.score} />
+                    <p className="text-text-muted font-light text-sm mt-2 whitespace-pre-wrap">{mood.note}</p>
+                  </div>
+                ))}
+                {selectedDayActivities.map((act) => (
+                  <div key={act.id} className="bg-surface p-3 rounded-lg border border-border-subtle">
+                    <div className="flex justify-between items-start gap-2">
+                      <span className="font-medium text-sm text-text">{act.title}</span>
+                      <span className="text-xs text-green-300 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">{act.durationMinutes} мин</span>
+                    </div>
+                    <span className="text-xs text-text-muted">{act.categoryName ?? 'Без категории'}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
+            <h2 className="heading-caps text-xs font-medium text-text mb-4 flex items-center gap-2">
+              <GraduationCap size={15} className="text-brand-light" />
+              Чему ты научился
+            </h2>
+
+            {summary && (summary.totalActivities > 0 || summary.achievements.length > 0) ? (
+              <>
+                <div className="flex gap-6 mb-4 text-sm">
+                  <div>
+                    <div className="font-medium text-text">{summary.totalActivities}</div>
+                    <div className="text-text-muted font-light text-xs">задач выполнено</div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-text">{Math.round(summary.totalMinutes / 60)}</div>
+                    <div className="text-text-muted font-light text-xs">часов вложено</div>
+                  </div>
+                  <div>
+                    <div className="font-medium text-text">{summary.achievements.length}</div>
+                    <div className="text-text-muted font-light text-xs">шагов плана закрыто</div>
+                  </div>
+                </div>
+
+                {summary.achievements.length > 0 && (
+                  <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    {summary.achievements.map((a, i) => (
+                      <li key={i} className="text-sm bg-surface p-2.5 rounded-lg border border-border-subtle">
+                        <span className="text-text font-light">{a.title}</span>
+                        <span className="block text-xs text-text-muted mt-0.5">{a.goalTitle}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <p className="text-text-muted font-light text-sm">
+                Пока рано подводить итоги — отметь несколько шагов плана или задач, и здесь появится сводка.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 

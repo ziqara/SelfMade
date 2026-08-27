@@ -48,17 +48,12 @@ export const HelpPage = () => {
             </div>
           </div>
         ))}
-
-        <div className="flex gap-3 bg-brand/10 border border-brand/20 rounded-xl p-3.5">
-          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-brand to-brand-dark flex items-center justify-center shrink-0">
-            <Sparkles size={15} className="text-white" />
-          </div>
-          <p className="text-text-muted font-light text-xs leading-snug self-center">
-            Совет: заметки настроения и рефлексия — не формальность. ИИ читает их при следующем совете,
-            так что чем честнее и конкретнее, тем полезнее рекомендации.
-          </p>
-        </div>
       </div>
+
+      <p className="text-text-muted font-light text-xs leading-snug text-center mt-5">
+        Совет: заметки настроения и рефлексия — не формальность. ИИ читает их при следующем совете,
+        так что чем честнее и конкретнее, тем полезнее рекомендации.
+      </p>
     </div>
   );
 };
