@@ -56,10 +56,6 @@ export const HistoryPage = () => {
     () => (selectedDate ? activities.filter((a) => toDateKey(new Date(a.createdAt)) === selectedDate) : []),
     [activities, selectedDate]
   );
-  const selectedDayMoods = useMemo(
-    () => (selectedDate ? moods.filter((m) => toDateKey(new Date(m.createdAt)) === selectedDate) : []),
-    [moods, selectedDate]
-  );
 
   if (isLoading) {
     return (
@@ -83,62 +79,65 @@ export const HistoryPage = () => {
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
-    <div className="w-full max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-8">История прогресса</h1>
+    <div className="w-full max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-6 border border-border-subtle">
+      <h1 className="heading-caps text-2xl font-light text-text mb-3">История прогресса</h1>
 
       {summary && summary.goalsProgress.length > 0 && (
-        <div className="mb-10">
-          <h2 className="heading-caps text-sm font-medium text-rose-300 mb-4">Прогресс по целям</h2>
+        <div className="mb-5">
+          <h2 className="heading-caps text-sm font-medium text-rose-300 mb-3">Прогресс по целям</h2>
           <div className="flex flex-wrap gap-6">
             {summary.goalsProgress.map((g) => (
-              <GoalProgressRing key={g.goalId} title={g.goalTitle} completed={g.completedSteps} total={g.totalSteps} />
+              <GoalProgressRing key={g.goalId} title={g.goalTitle} completed={g.completedSteps} total={g.totalSteps} size={52} />
             ))}
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mb-10">
-        <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5 items-stretch">
+        <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5 h-[480px] flex flex-col justify-center">
           <HistoryCalendar activities={activities} moods={moods} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
         </div>
 
         {selectedDate ? (
-          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
-            <h2 className="heading-caps text-sm font-medium text-text mb-4">
-              {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
-            </h2>
-            {selectedDayMoods.length === 0 && selectedDayActivities.length === 0 ? (
+          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-3.5 h-[480px] flex flex-col justify-center overflow-hidden">
+            <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
+              <h2 className="heading-caps text-sm font-medium text-text">
+                {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </h2>
+              <button
+                onClick={() => setSelectedDate(null)}
+                className="flex items-center gap-1 text-xs font-medium text-brand-light hover:underline shrink-0"
+              >
+                <GraduationCap size={13} />
+                Чему научился
+              </button>
+            </div>
+            {selectedDayActivities.length === 0 ? (
               <p className="text-text-muted font-light text-sm">В этот день записей нет.</p>
             ) : (
-              <div className="space-y-3">
-                {selectedDayMoods.map((mood) => (
-                  <div key={mood.id} className="bg-surface p-3 rounded-lg border border-border-subtle">
-                    <MoodDots score={mood.score} />
-                    <p className="text-text-muted font-light text-sm mt-2 whitespace-pre-wrap">{mood.note}</p>
-                  </div>
-                ))}
+              <div className="space-y-3 max-h-[363px] overflow-y-auto pr-1">
                 {selectedDayActivities.map((act) => (
-                  <div key={act.id} className="bg-surface p-3 rounded-lg border border-border-subtle">
+                  <div key={act.id} className="bg-surface pt-4 px-4 pb-5 rounded-lg border border-border-subtle">
                     <div className="flex justify-between items-start gap-2">
-                      <span className="font-medium text-sm text-text">{act.title}</span>
+                      <span className="font-medium text-sm text-text line-clamp-1">{act.title}</span>
                       <span className="text-xs text-green-300 bg-green-500/15 px-2 py-0.5 rounded-full shrink-0">{act.durationMinutes} мин</span>
                     </div>
-                    <span className="text-xs text-text-muted">{act.categoryName ?? 'Без категории'}</span>
+                    <span className="block text-xs text-text-muted line-clamp-1 mt-0.5">{act.categoryName ?? 'Без категории'}</span>
                   </div>
                 ))}
               </div>
             )}
           </div>
         ) : (
-          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
-            <h2 className="heading-caps text-sm font-medium text-text mb-4 flex items-center gap-2">
+          <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-3.5 h-[480px] flex flex-col justify-center overflow-hidden">
+            <h2 className="heading-caps text-sm font-medium text-text mb-2.5 flex items-center gap-2 shrink-0">
               <GraduationCap size={15} className="text-brand-light" />
               Чему ты научился
             </h2>
 
             {summary && (summary.totalActivities > 0 || summary.achievements.length > 0) ? (
               <>
-                <div className="flex gap-6 mb-4 text-sm">
+                <div className="flex gap-6 mb-2.5 text-sm shrink-0">
                   <div>
                     <div className="font-medium text-text">{summary.totalActivities}</div>
                     <div className="text-text-muted font-light text-xs">задач выполнено</div>
@@ -154,11 +153,11 @@ export const HistoryPage = () => {
                 </div>
 
                 {summary.achievements.length > 0 && (
-                  <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
+                  <ul className="space-y-3 max-h-[363px] overflow-y-auto pr-1">
                     {summary.achievements.map((a, i) => (
-                      <li key={i} className="text-sm bg-surface p-2.5 rounded-lg border border-border-subtle">
-                        <span className="text-text font-light">{a.title}</span>
-                        <span className="block text-xs text-text-muted mt-0.5">{a.goalTitle}</span>
+                      <li key={i} className="bg-surface pt-4 px-4 pb-5 rounded-lg border border-border-subtle">
+                        <span className="block font-medium text-sm text-text line-clamp-1">{a.title}</span>
+                        <span className="block text-xs text-text-muted line-clamp-1 mt-0.5">{a.goalTitle}</span>
                       </li>
                     ))}
                   </ul>

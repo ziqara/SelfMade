@@ -47,10 +47,14 @@ export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate 
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const todayKey = toDateKey(new Date());
 
+  // Всегда ровно 6 строк (42 ячейки), даже если месяцу хватило бы 4-5 — иначе
+  // при переключении месяцев календарь "прыгает" по высоте (из-за
+  // вертикального центрирования блока в карточке фиксированной высоты).
   const cells: (Date | null)[] = [
     ...Array(leadingBlanks).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1)),
   ];
+  while (cells.length < 42) cells.push(null);
 
   return (
     <div>
@@ -74,35 +78,37 @@ export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate 
         </button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1.5 text-center mb-1.5">
-        {WEEKDAYS.map((d) => (
-          <span key={d} className="text-[10px] text-text-muted font-light">{d}</span>
-        ))}
-      </div>
+      <div className="max-w-[440px] mx-auto">
+        <div className="grid grid-cols-7 gap-3 text-center mb-1.5">
+          {WEEKDAYS.map((d) => (
+            <span key={d} className="text-xs text-text-muted font-light">{d}</span>
+          ))}
+        </div>
 
-      <div className="grid grid-cols-7 gap-1.5">
-        {cells.map((date, i) => {
-          if (!date) return <div key={`blank-${i}`} />;
-          const key = toDateKey(date);
-          const data = dayData.get(key);
-          const isSelected = selectedDate === key;
-          const isToday = key === todayKey;
+        <div className="grid grid-cols-7 gap-3">
+          {cells.map((date, i) => {
+            if (!date) return <div key={`blank-${i}`} className="aspect-square" />;
+            const key = toDateKey(date);
+            const data = dayData.get(key);
+            const isSelected = selectedDate === key;
+            const isToday = key === todayKey;
 
-          return (
-            <button
-              key={key}
-              onClick={() => onSelectDate(isSelected ? null : key)}
-              className={`relative aspect-square rounded-full flex items-center justify-center text-xs transition-all hover:opacity-80 ${
-                data?.moodScore != null ? `${moodColor(data.moodScore)} text-ink` : 'bg-surface-2 text-text-muted'
-              } ${isSelected ? 'ring-2 ring-brand ring-offset-2 ring-offset-surface' : ''} ${isToday ? 'font-semibold' : 'font-light'}`}
-            >
-              {date.getDate()}
-              {data && data.activityCount > 0 && (
-                <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand border border-surface" />
-              )}
-            </button>
-          );
-        })}
+            return (
+              <button
+                key={key}
+                onClick={() => onSelectDate(isSelected ? null : key)}
+                className={`relative aspect-square w-full rounded-full flex items-center justify-center text-sm transition-all hover:opacity-80 ${
+                  data?.moodScore != null ? `${moodColor(data.moodScore)} text-ink` : 'bg-surface-2 text-text-muted'
+                } ${isSelected ? 'ring-2 ring-brand ring-offset-2 ring-offset-surface' : ''} ${isToday ? 'font-semibold' : 'font-light'}`}
+              >
+                {date.getDate()}
+                {data && data.activityCount > 0 && (
+                  <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-brand border border-surface" />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
