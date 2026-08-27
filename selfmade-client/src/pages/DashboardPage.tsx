@@ -191,7 +191,7 @@ export const DashboardPage = () => {
             </div>
 
             {aiInsight ? (
-              <div className="max-h-56 overflow-y-auto pr-1 mt-4">
+              <div className="max-h-[221px] overflow-y-auto pr-1 mt-4">
                 <div className="whitespace-pre-wrap text-text/90 leading-relaxed font-light">{stripMarkdown(aiInsight)}</div>
               </div>
             ) : (
