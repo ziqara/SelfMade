@@ -138,17 +138,17 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
   const completedCount = pendingSteps.filter((s) => checkedThisSession.has(s.stepId)).length;
 
   return (
-    <div className="mt-4 p-4 bg-white/70 border border-purple-200 rounded-xl">
+    <div className="mt-4 p-4 bg-surface/60 border border-brand/20 rounded-xl">
       {sessionState === 'idle' && (
         <>
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-sm text-text-muted mb-3">
             {pendingSteps.length > 0
               ? `В плане ${pendingSteps.length} невыполненных шагов. Начни сессию, чтобы отмечать их по пути.`
               : 'Активных шагов плана нет, но можно просто начать сессию и записать, чем занимался.'}
           </p>
           <button
             onClick={handleStart}
-            className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+            className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all"
           >
             <Play size={16} />
             Начать развиваться
@@ -159,21 +159,21 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
       {sessionState === 'active' && (
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="font-mono text-lg font-bold text-purple-700">{formatElapsed(elapsedSec)}</span>
+            <span className="font-mono text-lg font-bold text-brand-light">{formatElapsed(elapsedSec)}</span>
             <button
               onClick={handleFinishClick}
-              className="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors"
+              className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all"
             >
               <Square size={14} />
               Закончить развиваться
             </button>
-            <button onClick={resetSession} className="text-sm text-gray-400 hover:text-gray-600 transition-colors">
+            <button onClick={resetSession} className="text-sm text-text-muted hover:text-text transition-colors">
               Отмена
             </button>
           </div>
 
           {(showRestNudge || pastFreeTime) && (
-            <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg p-3">
+            <div className="flex items-start gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm rounded-lg p-3">
               <Coffee size={16} className="shrink-0 mt-0.5" />
               <span>
                 {pastFreeTime
@@ -186,16 +186,16 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
           {pendingSteps.length > 0 && (
             <ul className="space-y-2">
               {pendingSteps.map((step) => (
-                <li key={step.stepId} className="flex items-start gap-2 bg-white border border-purple-100 rounded-lg p-3">
+                <li key={step.stepId} className="flex items-start gap-2 bg-surface-2 border border-border-subtle rounded-lg p-3">
                   <input
                     type="checkbox"
                     checked={checkedThisSession.has(step.stepId)}
                     onChange={() => handleToggleStep(step)}
-                    className="mt-1 w-4 h-4 rounded text-purple-600 shrink-0 cursor-pointer"
+                    className="mt-1 w-4 h-4 rounded text-brand shrink-0 cursor-pointer"
                   />
                   <div>
-                    <span className="text-xs font-semibold text-purple-500 uppercase tracking-wide">{step.goalTitle}</span>
-                    <p className={`font-medium text-sm ${checkedThisSession.has(step.stepId) ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                    <span className="text-xs font-semibold text-brand-light uppercase tracking-wide">{step.goalTitle}</span>
+                    <p className={`font-medium text-sm ${checkedThisSession.has(step.stepId) ? 'text-text-muted line-through' : 'text-text'}`}>
                       {step.title}
                     </p>
                   </div>
@@ -207,21 +207,21 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
       )}
 
       {sessionState === 'finishing' && (
-        <div className="space-y-3 bg-white p-4 rounded-lg border border-purple-100">
+        <div className="space-y-3 bg-surface-2 p-4 rounded-lg border border-border-subtle">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-gray-800">Как прошла сессия?</h4>
-            <button onClick={resetSession} className="text-gray-400 hover:text-gray-600" aria-label="Отменить">
+            <h4 className="font-bold text-text">Как прошла сессия?</h4>
+            <button onClick={resetSession} className="text-text-muted hover:text-text" aria-label="Отменить">
               <X size={16} />
             </button>
           </div>
 
           {completedCount > 0 && (
-            <p className="text-sm text-green-700 bg-green-50 border border-green-100 rounded-lg p-2">
+            <p className="text-sm text-green-300 bg-green-500/10 border border-green-500/20 rounded-lg p-2">
               Отмечено выполненными: {completedCount} {completedCount === 1 ? 'шаг' : 'шага'}
             </p>
           )}
 
-          <label className="text-sm text-gray-600 flex items-center gap-2">
+          <label className="text-sm text-text-muted flex items-center gap-2">
             Потрачено минут:
             <input
               type="number"
@@ -229,19 +229,19 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
               max="1440"
               value={durationOverride}
               onChange={(e) => setDurationOverride(e.target.value)}
-              className="w-20 border p-1.5 rounded-lg"
+              className="w-20 border border-border-subtle bg-surface text-text p-1.5 rounded-lg"
             />
           </label>
 
           <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600">Настроение (1-5):</label>
+            <label className="text-sm text-text-muted">Настроение (1-5):</label>
             <input
               type="number"
               min="1"
               max="5"
               value={moodScore}
               onChange={(e) => setMoodScore(e.target.value)}
-              className="w-16 border p-1.5 rounded-lg"
+              className="w-16 border border-border-subtle bg-surface text-text p-1.5 rounded-lg"
             />
           </div>
 
@@ -250,14 +250,14 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
             value={reflectionNote}
             onChange={(e) => setReflectionNote(e.target.value)}
             rows={3}
-            className="w-full border p-2 rounded-lg text-sm resize-none"
+            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted p-2 rounded-lg text-sm resize-none"
           />
 
           <button
             onClick={handleSubmitFinish}
             disabled={isSubmitting}
             className={`w-full flex items-center justify-center gap-2 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
-              isSubmitting ? 'bg-purple-300 cursor-wait' : 'bg-purple-600 hover:bg-purple-700'
+              isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
             }`}
           >
             <CheckCircle2 size={16} />

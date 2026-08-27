@@ -1,5 +1,27 @@
 @import "tailwindcss";
 
+@theme {
+  --color-ink: #0a0a12;
+  --color-ink-soft: #0f0f1a;
+  --color-surface: #16161f;
+  --color-surface-2: #1e1e2a;
+  --color-border-subtle: #2a2a38;
+  --color-text: #f2f1f8;
+  --color-text-muted: #9d9ab0;
+  --color-brand: #8b5cf6;
+  --color-brand-light: #a78bfa;
+  --color-brand-dark: #6d28d9;
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--color-ink);
+  color: var(--color-text);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -8,5 +30,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes floatBlob {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(4%, -6%) scale(1.08);
+  }
+  66% {
+    transform: translate(-3%, 4%) scale(0.95);
   }
 }

@@ -1,45 +1,56 @@
 import { NavLink, Outlet } from 'react-router-dom';
+import { Home, CalendarDays, Target, Settings, LogOut, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-  `block px-4 py-3 rounded-lg font-medium transition-colors ${
-    isActive ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-700 hover:bg-blue-50'
+  `flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all ${
+    isActive
+      ? 'bg-gradient-to-r from-brand to-brand-dark text-white shadow-lg shadow-brand/20'
+      : 'text-text-muted hover:bg-surface-2 hover:text-text'
   }`;
 
 export const Layout = () => {
   const logout = useAuthStore((state) => state.logout);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-ink flex">
 
       {/* Боковое меню (Sidebar) */}
-      <aside className="w-64 bg-white border-r border-gray-200 shadow-sm flex flex-col">
-        <div className="p-6">
-          <h2 className="text-2xl font-black text-blue-600 tracking-tight">SelfMade.</h2>
+      <aside className="w-64 bg-surface/60 backdrop-blur-xl border-r border-border-subtle flex flex-col">
+        <div className="p-6 flex items-center gap-2">
+          <Sparkles className="text-brand-light" size={20} />
+          <h2 className="text-xl font-black bg-gradient-to-r from-brand-light to-fuchsia-400 bg-clip-text text-transparent tracking-tight">
+            SelfMade
+          </h2>
         </div>
 
-        <nav className="flex-1 px-4 space-y-2">
+        <nav className="flex-1 px-4 space-y-1">
           {/* NavLink подсвечивает пункт меню, соответствующий текущему пути */}
           <NavLink to="/" end className={navLinkClass}>
-            🏠 Главная
+            <Home size={18} />
+            Главная
           </NavLink>
           <NavLink to="/history" className={navLinkClass}>
-            📅 История
+            <CalendarDays size={18} />
+            История
           </NavLink>
           <NavLink to="/goals" className={navLinkClass}>
-            🎯 Цели и Категории
+            <Target size={18} />
+            Цели и Категории
           </NavLink>
           <NavLink to="/profile" className={navLinkClass}>
-            ⚙️ Профиль
+            <Settings size={18} />
+            Профиль
           </NavLink>
         </nav>
 
-        <div className="p-4 border-t border-gray-100">
+        <div className="p-4 border-t border-border-subtle">
           <button
             onClick={logout}
-            className="w-full text-left px-4 py-3 text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center gap-3 text-left px-4 py-3 text-red-400 font-medium hover:bg-red-500/10 rounded-xl transition-colors"
           >
-            🚪 Выйти
+            <LogOut size={18} />
+            Выйти
           </button>
         </div>
       </aside>

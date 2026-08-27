@@ -33,16 +33,16 @@ export const HistoryPage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100 animate-pulse">
-        <div className="h-8 w-64 bg-gray-200 rounded mb-8" />
+      <div className="max-w-6xl mx-auto bg-surface rounded-xl shadow-sm p-8 border border-border-subtle animate-pulse">
+        <div className="h-8 w-64 bg-surface-2 rounded mb-8" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div className="space-y-4">
-            <div className="h-24 bg-gray-100 rounded-xl" />
-            <div className="h-24 bg-gray-100 rounded-xl" />
+            <div className="h-24 bg-surface-2 rounded-xl" />
+            <div className="h-24 bg-surface-2 rounded-xl" />
           </div>
           <div className="space-y-4">
-            <div className="h-24 bg-gray-100 rounded-xl" />
-            <div className="h-24 bg-gray-100 rounded-xl" />
+            <div className="h-24 bg-surface-2 rounded-xl" />
+            <div className="h-24 bg-surface-2 rounded-xl" />
           </div>
         </div>
       </div>
@@ -50,34 +50,34 @@ export const HistoryPage = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-      <h1 className="text-3xl font-bold mb-8">История прогресса ⏳</h1>
+    <div className="max-w-6xl mx-auto bg-surface rounded-xl shadow-sm p-8 border border-border-subtle">
+      <h1 className="text-3xl font-bold mb-8 text-text">История прогресса ⏳</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
         {/* Колонка 1: История активностей */}
         <div>
-          <h2 className="text-2xl font-bold text-green-700 mb-6 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-green-400 mb-6 flex items-center gap-2">
             📝 Выполненные задачи
           </h2>
 
           {activities.length === 0 ? (
-            <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">История задач пока пуста.</p>
+            <p className="text-text-muted bg-surface-2 p-4 rounded-lg">История задач пока пуста.</p>
           ) : (
             <div className="space-y-4">
               {activities.map(act => (
-                <div key={act.id} className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <div key={act.id} className="bg-surface-2 p-5 rounded-xl border border-border-subtle shadow-sm hover:border-brand/30 transition-colors">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-lg text-gray-800">{act.title}</h3>
-                    <span className="bg-green-100 text-green-800 font-bold px-3 py-1 rounded-full text-sm">
+                    <h3 className="font-bold text-lg text-text">{act.title}</h3>
+                    <span className="bg-green-500/15 text-green-300 font-bold px-3 py-1 rounded-full text-sm">
                       {act.durationMinutes} мин
                     </span>
                   </div>
                   {act.description && (
-                    <p className="text-gray-600 text-sm mb-3">{act.description}</p>
+                    <p className="text-text-muted text-sm mb-3 whitespace-pre-wrap">{act.description}</p>
                   )}
-                  <div className="flex justify-between items-center text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
-                    <span className="bg-gray-100 px-2 py-1 rounded text-gray-600">
+                  <div className="flex justify-between items-center text-xs text-text-muted mt-4 pt-3 border-t border-border-subtle">
+                    <span className="bg-surface px-2 py-1 rounded text-text-muted">
                       📂 {act.categoryName ?? 'Без категории'}
                     </span>
                     <span>
@@ -94,29 +94,29 @@ export const HistoryPage = () => {
 
         {/* Колонка 2: История настроения */}
         <div>
-          <h2 className="text-2xl font-bold text-blue-700 mb-6 flex items-center gap-2">
+          <h2 className="text-2xl font-bold text-blue-400 mb-6 flex items-center gap-2">
             🧠 Дневник настроения
           </h2>
 
           {moods.length === 0 ? (
-            <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">Дневник настроения пуст.</p>
+            <p className="text-text-muted bg-surface-2 p-4 rounded-lg">Дневник настроения пуст.</p>
           ) : (
             <div className="space-y-4">
               {moods.map(mood => (
-                <div key={mood.id} className="bg-blue-50 p-5 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
+                <div key={mood.id} className="bg-blue-500/10 p-5 rounded-xl border border-blue-500/20 shadow-sm hover:border-blue-400/40 transition-colors">
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-3xl" title={`Оценка: ${mood.score} из 5`}>
                       {/* Простая визуализация оценки с помощью эмодзи */}
                       {mood.score === 5 ? '🤩' : mood.score === 4 ? '🙂' : mood.score === 3 ? '😐' : mood.score === 2 ? '☹️' : '😫'}
-                      <span className="text-sm font-bold text-blue-800 ml-2">{mood.score}/5</span>
+                      <span className="text-sm font-bold text-blue-300 ml-2">{mood.score}/5</span>
                     </span>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-text-muted">
                       {new Date(mood.createdAt).toLocaleDateString('ru-RU', {
                         day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
                       })}
                     </span>
                   </div>
-                  <p className="text-gray-700 bg-white p-3 rounded-lg border border-blue-50">
+                  <p className="text-text-muted bg-surface p-3 rounded-lg border border-border-subtle whitespace-pre-wrap">
                     «{mood.note}»
                   </p>
                 </div>

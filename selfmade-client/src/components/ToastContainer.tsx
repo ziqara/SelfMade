@@ -3,16 +3,16 @@ import { useToastStore, type Toast } from '../store/toastStore';
 
 const STYLES: Record<Toast['type'], { wrapper: string; icon: React.ReactNode }> = {
   success: {
-    wrapper: 'bg-green-50 border-green-200 text-green-800',
-    icon: <CheckCircle2 className="text-green-600 shrink-0" size={20} />,
+    wrapper: 'bg-surface/90 border-green-500/30 text-green-300',
+    icon: <CheckCircle2 className="text-green-400 shrink-0" size={20} />,
   },
   error: {
-    wrapper: 'bg-red-50 border-red-200 text-red-800',
-    icon: <XCircle className="text-red-600 shrink-0" size={20} />,
+    wrapper: 'bg-surface/90 border-red-500/30 text-red-300',
+    icon: <XCircle className="text-red-400 shrink-0" size={20} />,
   },
   info: {
-    wrapper: 'bg-blue-50 border-blue-200 text-blue-800',
-    icon: <Info className="text-blue-600 shrink-0" size={20} />,
+    wrapper: 'bg-surface/90 border-brand/30 text-brand-light',
+    icon: <Info className="text-brand-light shrink-0" size={20} />,
   },
 };
 
@@ -28,7 +28,7 @@ export const ToastContainer = () => {
         <div
           key={t.id}
           role="alert"
-          className={`flex items-start gap-3 border rounded-xl shadow-lg px-4 py-3 animate-[fadeIn_0.15s_ease-out] ${STYLES[t.type].wrapper}`}
+          className={`flex items-start gap-3 border rounded-xl shadow-lg shadow-black/30 backdrop-blur-xl px-4 py-3 animate-[fadeIn_0.15s_ease-out] ${STYLES[t.type].wrapper}`}
         >
           {STYLES[t.type].icon}
           <p className="text-sm font-medium flex-1 leading-snug">{t.message}</p>

@@ -28,13 +28,13 @@ export const ProfilePage = () => {
   };
 
   if (!profile) {
-    return <div className="p-8 text-gray-500">Загрузка профиля...</div>;
+    return <div className="p-8 text-text-muted">Загрузка профиля...</div>;
   }
 
   return (
-    <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-sm p-8 border border-gray-100">
-      <h1 className="text-3xl font-bold mb-2">Настройки ИИ-наставника ⚙️</h1>
-      <p className="text-gray-500 mb-8">Обнови свое расписание и векторы развития, чтобы ИИ давал более точные советы.</p>
+    <div className="max-w-3xl mx-auto bg-surface rounded-xl shadow-sm p-8 border border-border-subtle">
+      <h1 className="text-3xl font-bold mb-2 text-text">Настройки ИИ-наставника ⚙️</h1>
+      <p className="text-text-muted mb-8">Обнови свое расписание и векторы развития, чтобы ИИ давал более точные советы.</p>
 
       <ProfileForm
         initialValues={{

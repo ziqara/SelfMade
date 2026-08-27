@@ -69,15 +69,15 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
   const completedCount = steps?.filter((s) => s.status === 'completed').length ?? 0;
 
   return (
-    <div className="mt-2 border-t border-orange-100 pt-2">
+    <div className="mt-2 border-t border-orange-500/20 pt-2">
       <button
         onClick={handleExpand}
-        className="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-800 transition-colors"
+        className="flex items-center gap-1 text-sm font-medium text-orange-400 hover:text-orange-300 transition-colors"
       >
         <Sparkles size={14} />
         План от ИИ
         {steps && steps.length > 0 && (
-          <span className="text-xs text-gray-400 font-normal">({completedCount}/{steps.length})</span>
+          <span className="text-xs text-text-muted font-normal">({completedCount}/{steps.length})</span>
         )}
         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
@@ -85,24 +85,24 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
       {isExpanded && (
         <div className="mt-3 space-y-2">
           {isLoading ? (
-            <p className="text-sm text-gray-400">Загрузка плана...</p>
+            <p className="text-sm text-text-muted">Загрузка плана...</p>
           ) : steps && steps.length > 0 ? (
             <>
               <ul className="space-y-2">
                 {steps.map((step) => (
-                  <li key={step.id} className="flex items-start gap-2 bg-gray-50 border border-gray-100 rounded-lg p-3">
+                  <li key={step.id} className="flex items-start gap-2 bg-surface border border-border-subtle rounded-lg p-3">
                     <input
                       type="checkbox"
                       checked={step.status === 'completed'}
                       onChange={() => handleToggle(step.id)}
-                      className="mt-1 w-4 h-4 rounded text-orange-600 shrink-0 cursor-pointer"
+                      className="mt-1 w-4 h-4 rounded text-orange-500 shrink-0 cursor-pointer"
                     />
                     <div>
-                      <p className={`font-medium text-sm ${step.status === 'completed' ? 'text-gray-400 line-through' : 'text-gray-800'}`}>
+                      <p className={`font-medium text-sm ${step.status === 'completed' ? 'text-text-muted line-through' : 'text-text'}`}>
                         {step.title}
                       </p>
                       {step.description && (
-                        <p className={`text-xs mt-0.5 ${step.status === 'completed' ? 'text-gray-300' : 'text-gray-500'}`}>
+                        <p className={`text-xs mt-0.5 ${step.status === 'completed' ? 'text-text-muted/60' : 'text-text-muted'}`}>
                           {step.description}
                         </p>
                       )}
@@ -113,7 +113,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="text-xs text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50"
+                className="text-xs text-text-muted hover:text-orange-400 transition-colors disabled:opacity-50"
               >
                 {isGenerating ? 'Пересоставляю...' : 'Составить план заново'}
               </button>
@@ -123,7 +123,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
               onClick={handleGenerate}
               disabled={isGenerating}
               className={`w-full text-sm text-white px-4 py-2 rounded-lg font-medium transition-colors ${
-                isGenerating ? 'bg-orange-300 cursor-wait' : 'bg-orange-500 hover:bg-orange-600'
+                isGenerating ? 'bg-orange-500/50 cursor-wait' : 'bg-orange-500 hover:bg-orange-400'
               }`}
             >
               {isGenerating ? 'Составляю план...' : `Составить план для «${goalTitle}»`}
