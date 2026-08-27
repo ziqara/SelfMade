@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SelfMade.Api.Application.Exceptions;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
 using System.ComponentModel.DataAnnotations;
@@ -14,11 +15,19 @@ public class UserInterestsController : ControllerBase
 {
     private readonly IUserInterestRepository _repository;
     private readonly ICategoryRepository _categoryRepository;
+    private readonly IAiService _aiService;
+    private readonly ILogger<UserInterestsController> _logger;
 
-    public UserInterestsController(IUserInterestRepository repository, ICategoryRepository categoryRepository)
+    public UserInterestsController(
+        IUserInterestRepository repository,
+        ICategoryRepository categoryRepository,
+        IAiService aiService,
+        ILogger<UserInterestsController> logger)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
+        _aiService = aiService;
+        _logger = logger;
     }
 
     [HttpGet("my")]
@@ -55,6 +64,67 @@ public class UserInterestsController : ControllerBase
         await _repository.SaveChangesAsync();
 
         return Ok(new { message = "Интерес/цель успешно добавлены!" });
+    }
+
+    // Пользователь задает только общее направление в Профиле — конкретные цели внутри
+    // него предлагает ИИ. Категории для новых целей переиспользуются или создаются
+    // тем же способом, что и при ручном добавлении, чтобы не плодить дубли.
+    [HttpPost("generate")]
+    public async Task<ActionResult> GenerateGoals()
+    {
+        var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
+
+        try
+        {
+            var suggestions = await _aiService.GenerateGoalSuggestionsAsync(userId);
+
+            var existingTitles = (await _repository.GetInterestsByUserIdAsync(userId))
+                .Where(i => i.IsDevelopmentGoal)
+                .Select(i => i.Title.Trim())
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var createdCount = 0;
+
+            foreach (var suggestion in suggestions)
+            {
+                if (existingTitles.Contains(suggestion.Title)) continue;
+
+                var category = await _categoryRepository.GetByNameAsync(userId, suggestion.Category);
+                if (category == null)
+                {
+                    category = new Category { UserId = userId, Name = suggestion.Category, Description = string.Empty, Type = "Обучение" };
+                    await _categoryRepository.AddCategoryAsync(category);
+                    await _categoryRepository.SaveChangesAsync();
+                }
+
+                await _repository.AddInterestAsync(new UserInterest
+                {
+                    UserId = userId,
+                    CategoryId = category.Id,
+                    Title = suggestion.Title,
+                    IsDevelopmentGoal = true
+                });
+
+                existingTitles.Add(suggestion.Title);
+                createdCount++;
+            }
+
+            await _repository.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = createdCount > 0
+                    ? $"ИИ добавил целей: {createdCount}."
+                    : "ИИ не нашел новых целей — похоже, всё уже есть в списке.",
+                count = createdCount
+            });
+        }
+        catch (AiServiceException ex)
+        {
+            _logger.LogWarning(ex, "Goal suggestion generation failed for user {UserId}", userId);
+            return StatusCode(StatusCodes.Status502BadGateway, new { message = ex.Message });
+        }
     }
 }
 

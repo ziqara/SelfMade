@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Target, Bookmark } from 'lucide-react';
+import { Target, Bookmark, Sparkles } from 'lucide-react';
 import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
 import { GoalPlanCard } from '../components/GoalPlanCard';
@@ -8,7 +8,8 @@ import type { Category, UserInterest } from '../types';
 export const GoalsPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [interests, setInterests] = useState<UserInterest[]>([]);
-  
+  const [isGeneratingGoals, setIsGeneratingGoals] = useState(false);
+
   // Состояния форм
   const [categoryName, setCategoryName] = useState('');
   const [categoryDesc, setCategoryDesc] = useState('');
@@ -50,6 +51,20 @@ export const GoalsPage = () => {
     } catch (error) {
       console.error('Ошибка при создании категории:', error);
       toast.error(getApiErrorMessage(error) || 'Ошибка при создании категории');
+    }
+  };
+
+  const handleGenerateGoals = async () => {
+    setIsGeneratingGoals(true);
+    try {
+      const response = await apiClient.post<{ message: string; count: number }>('/userinterests/generate');
+      toast.success(response.data.message);
+      if (response.data.count > 0) loadData();
+    } catch (error) {
+      console.error('Ошибка генерации целей:', error);
+      toast.error(getApiErrorMessage(error) || 'Не удалось предложить цели.');
+    } finally {
+      setIsGeneratingGoals(false);
     }
   };
 
@@ -119,7 +134,24 @@ export const GoalsPage = () => {
         {/* Правая колонка: Списки */}
         <div className="space-y-8">
           <div>
-            <h2 className="heading-caps text-sm font-medium mb-4 text-rose-300">Твои глобальные цели</h2>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <h2 className="heading-caps text-sm font-medium text-rose-300">Твои глобальные цели</h2>
+              <button
+                onClick={handleGenerateGoals}
+                disabled={isGeneratingGoals}
+                className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border transition-colors shrink-0 ${
+                  isGeneratingGoals
+                    ? 'text-text-muted border-border-subtle cursor-wait'
+                    : 'text-rose-300 border-rose-500/30 hover:bg-rose-500/10'
+                }`}
+              >
+                <Sparkles size={13} />
+                {isGeneratingGoals ? 'Придумываю цели...' : 'Предложить цели (ИИ)'}
+              </button>
+            </div>
+            <p className="text-xs text-text-muted font-light -mt-2 mb-4">
+              ИИ сам разложит общее направление из «Профиля» на конкретные цели — не нужно придумывать их вручную.
+            </p>
             {interests.length === 0 ? (
               <p className="text-text-muted font-light">Цели пока не добавлены.</p>
             ) : (

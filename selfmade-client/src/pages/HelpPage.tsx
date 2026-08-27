@@ -30,31 +30,34 @@ const STEPS = [
 
 export const HelpPage = () => {
   return (
-    <div className="max-w-3xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-8 md:p-10 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-2 text-center">Как это работает</h1>
-      <p className="text-text-muted font-light mb-10 text-center">
+    <div className="max-w-4xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-6 md:p-7 border border-border-subtle">
+      <h1 className="heading-caps text-xl font-light text-text mb-1 text-center">Как это работает</h1>
+      <p className="text-text-muted font-light text-sm mb-5 text-center">
         Коротко про весь цикл — от настройки профиля до совета от ИИ на вечер.
       </p>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {STEPS.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="flex gap-4 bg-surface-2 border border-border-subtle rounded-xl p-5">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-brand to-brand-dark flex items-center justify-center shrink-0">
-              <Icon size={18} className="text-white" />
+          <div key={title} className="flex gap-3 bg-surface-2 border border-border-subtle rounded-xl p-3.5">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-brand to-brand-dark flex items-center justify-center shrink-0">
+              <Icon size={15} className="text-white" />
             </div>
             <div>
-              <h2 className="heading-caps text-sm font-medium text-text mb-1">{title}</h2>
-              <p className="text-text-muted font-light text-sm leading-relaxed">{text}</p>
+              <h2 className="heading-caps text-xs font-medium text-text mb-0.5">{title}</h2>
+              <p className="text-text-muted font-light text-xs leading-snug">{text}</p>
             </div>
           </div>
         ))}
-      </div>
 
-      <div className="mt-8 p-5 bg-brand/10 border border-brand/20 rounded-xl">
-        <p className="text-text-muted font-light text-sm leading-relaxed">
-          Совет: заметки настроения и рефлексия («что было непонятно») — не формальность. ИИ читает их
-          при следующем совете, так что чем честнее и конкретнее, тем полезнее рекомендации.
-        </p>
+        <div className="flex gap-3 bg-brand/10 border border-brand/20 rounded-xl p-3.5">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-brand to-brand-dark flex items-center justify-center shrink-0">
+            <Sparkles size={15} className="text-white" />
+          </div>
+          <p className="text-text-muted font-light text-xs leading-snug self-center">
+            Совет: заметки настроения и рефлексия — не формальность. ИИ читает их при следующем совете,
+            так что чем честнее и конкретнее, тем полезнее рекомендации.
+          </p>
+        </div>
       </div>
     </div>
   );

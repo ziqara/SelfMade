@@ -14,4 +14,8 @@ public interface IAiService
     // Просит ИИ разбить конкретную цель развития на пошаговый план.
     // Бросает AiServiceException, если ИИ недоступен или вернул невалидный ответ.
     Task<List<GoalPlanStepDraft>> GenerateGoalPlanAsync(int userId, UserInterest goal);
+
+    // Предлагает конкретные цели развития по общему вектору из профиля пользователя.
+    // Бросает AiServiceException, если вектор не задан, ИИ недоступен или вернул невалидный ответ.
+    Task<List<GoalSuggestionDraft>> GenerateGoalSuggestionsAsync(int userId);
 }
