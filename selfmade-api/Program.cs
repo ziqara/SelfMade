@@ -45,6 +45,10 @@ builder.Services.AddHttpClient("Gemini", client =>
 {
     client.Timeout = TimeSpan.FromSeconds(30);
 });
+builder.Services.AddHttpClient("OAuth", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
 builder.Services.AddScoped<IAiService, GeminiAiService>();
 
 // 2. Настройка CORS для взаимодействия с React.

@@ -5,6 +5,7 @@ import { useAuthStore } from './store/authStore';
 import { Layout } from './components/Layout';
 import { ToastContainer } from './components/ToastContainer';
 import { AuthPage } from './pages/AuthPage';
+import { OAuthCallbackPage } from './pages/OAuthCallbackPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { HistoryPage } from './pages/HistoryPage';
 import { GoalsPage } from './pages/GoalsPage';
@@ -18,6 +19,9 @@ function App() {
     <BrowserRouter>
       <ToastContainer />
       <Routes>
+        {/* Доступен всегда, до момента когда токен появится в сторе */}
+        <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
+
         {/* Если пользователь НЕ авторизован */}
         {!isAuthenticated ? (
           // Любой путь (*) ведет на страницу авторизации
