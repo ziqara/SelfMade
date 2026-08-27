@@ -28,27 +28,33 @@ public class AnalyticsController : ControllerBase
         _logger = logger;
     }
 
-    // Ближайший невыполненный шаг из плана ИИ по любой из целей развития пользователя —
-    // именно его дашборд показывает как одну актуальную карточку "что делать дальше".
-    [HttpGet("next-step")]
-    public async Task<ActionResult<NextStepDto?>> GetNextStep()
+    // Все невыполненные шаги плана ИИ по всем целям развития пользователя —
+    // дашборд показывает их единым чек-листом внутри сессии "Начать развиваться".
+    [HttpGet("pending-steps")]
+    public async Task<ActionResult<IEnumerable<PendingStepDto>>> GetPendingSteps()
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!int.TryParse(userIdString, out int userId)) return Unauthorized();
 
-        var step = await _planRepository.GetNextPendingForUserAsync(userId);
-        if (step == null) return Ok(null);
+        var steps = await _planRepository.GetAllPendingForUserAsync(userId);
+        if (steps.Count == 0) return Ok(Array.Empty<PendingStepDto>());
 
-        var goal = await _interestRepository.GetByIdAsync(step.GoalId);
+        var goals = await _interestRepository.GetInterestsByUserIdAsync(userId);
+        var goalTitles = goals.ToDictionary(g => g.Id, g => g.Title);
 
-        return Ok(new NextStepDto
+        var goalCategoryIds = goals.ToDictionary(g => g.Id, g => g.CategoryId);
+
+        var response = steps.Select(s => new PendingStepDto
         {
-            GoalId = step.GoalId,
-            StepId = step.Id,
-            GoalTitle = goal?.Title ?? string.Empty,
-            Title = step.Title,
-            Description = step.Description
+            GoalId = s.GoalId,
+            StepId = s.Id,
+            GoalTitle = goalTitles.GetValueOrDefault(s.GoalId, string.Empty),
+            CategoryId = goalCategoryIds.GetValueOrDefault(s.GoalId),
+            Title = s.Title,
+            Description = s.Description
         });
+
+        return Ok(response);
     }
 
     // Отдает уже сгенерированный сегодня совет (если есть), без обращения к Gemini.
@@ -83,11 +89,12 @@ public class AnalyticsController : ControllerBase
     }
 }
 
-public class NextStepDto
+public class PendingStepDto
 {
     public int GoalId { get; set; }
     public int StepId { get; set; }
     public string GoalTitle { get; set; } = string.Empty;
+    public int CategoryId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
 }

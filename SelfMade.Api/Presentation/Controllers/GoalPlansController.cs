@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SelfMade.Api.Application.Exceptions;
 using SelfMade.Api.Application.Interfaces;
 using SelfMade.Api.Domain;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace SelfMade.Api.Presentation.Controllers;
@@ -16,20 +15,17 @@ public class GoalPlansController : ControllerBase
 {
     private readonly IUserInterestRepository _interestRepository;
     private readonly IGoalPlanRepository _planRepository;
-    private readonly IActivityRepository _activityRepository;
     private readonly IAiService _aiService;
     private readonly ILogger<GoalPlansController> _logger;
 
     public GoalPlansController(
         IUserInterestRepository interestRepository,
         IGoalPlanRepository planRepository,
-        IActivityRepository activityRepository,
         IAiService aiService,
         ILogger<GoalPlansController> logger)
     {
         _interestRepository = interestRepository;
         _planRepository = planRepository;
-        _activityRepository = activityRepository;
         _aiService = aiService;
         _logger = logger;
     }
@@ -113,46 +109,6 @@ public class GoalPlansController : ControllerBase
         return Ok(ToDto(step));
     }
 
-    // Единое действие "выполнил шаг плана": отмечает шаг выполненным И сразу
-    // логирует активность с этим же названием — чтобы не заполнять две формы за одно и то же дело.
-    [HttpPost("{stepId:int}/complete")]
-    public async Task<ActionResult<CompleteStepResponseDto>> CompleteStep(int goalId, int stepId, [FromBody] CompleteStepRequest request)
-    {
-        var userId = CurrentUserId();
-        if (userId == null) return Unauthorized();
-
-        var goal = await _interestRepository.GetByIdAsync(goalId);
-        if (goal == null || goal.UserId != userId) return NotFound(new { message = "Цель не найдена." });
-
-        var step = await _planRepository.GetByIdAsync(stepId);
-        if (step == null || step.GoalId != goalId || step.UserId != userId)
-        {
-            return NotFound(new { message = "Шаг плана не найден." });
-        }
-
-        step.Status = "completed";
-        step.CompletedAt = DateTime.UtcNow;
-        await _planRepository.SaveChangesAsync();
-
-        var activity = new ActivityLog
-        {
-            UserId = userId.Value,
-            CategoryId = goal.CategoryId,
-            Title = step.Title,
-            Description = step.Description,
-            DurationMinutes = request.DurationMinutes,
-            CreatedAt = DateTime.UtcNow
-        };
-        await _activityRepository.AddActivityAsync(activity);
-        await _activityRepository.SaveChangesAsync();
-
-        return Ok(new CompleteStepResponseDto
-        {
-            Step = ToDto(step),
-            ActivityId = activity.Id
-        });
-    }
-
     private int? CurrentUserId()
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -176,16 +132,4 @@ public class GoalPlanStepDto
     public string Description { get; set; } = string.Empty;
     public string Status { get; set; } = string.Empty;
     public DateTime? CompletedAt { get; set; }
-}
-
-public class CompleteStepRequest
-{
-    [Range(1, 1440, ErrorMessage = "Длительность должна быть от 1 до 1440 минут.")]
-    public int DurationMinutes { get; set; }
-}
-
-public class CompleteStepResponseDto
-{
-    public GoalPlanStepDto Step { get; set; } = new();
-    public int ActivityId { get; set; }
 }

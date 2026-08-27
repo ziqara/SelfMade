@@ -56,10 +56,11 @@ export interface GoalPlanStep {
   completedAt: string | null;
 }
 
-export interface NextStep {
+export interface PendingStep {
   goalId: number;
   stepId: number;
   goalTitle: string;
+  categoryId: number;
   title: string;
   description: string;
 }

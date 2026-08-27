@@ -4,8 +4,9 @@ import { useAuthStore } from '../store/authStore';
 import { OnboardingPage } from './OnboardingPage';
 import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
-import { NextStepCard } from '../components/NextStepCard';
-import type { Category, Activity, Mood, DailyInsightResponse, NextStep } from '../types';
+import { DaySessionCard } from '../components/DaySessionCard';
+import { DailyCheckinModal } from '../components/DailyCheckinModal';
+import type { Category, Activity, Mood, DailyInsightResponse, PendingStep } from '../types';
 
 export const DashboardPage = () => {
   const { profile, fetchProfile, isLoading } = useAuthStore();
@@ -15,18 +16,16 @@ export const DashboardPage = () => {
   const [moods, setMoods] = useState<Mood[]>([]);
   const [isDataLoading, setIsDataLoading] = useState(true);
 
-  const [moodScore, setMoodScore] = useState('5');
-  const [moodNote, setMoodNote] = useState('');
-
   const [activityTitle, setActivityTitle] = useState('');
   const [activityDesc, setActivityDesc] = useState('');
   const [duration, setDuration] = useState('60');
   const [selectedCategoryId, setSelectedCategoryId] = useState('');
   const [showFreeformActivity, setShowFreeformActivity] = useState(false);
+  const [checkinDismissed, setCheckinDismissed] = useState(false);
 
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
-  const [nextStep, setNextStep] = useState<NextStep | null>(null);
+  const [pendingSteps, setPendingSteps] = useState<PendingStep[]>([]);
 
   const loadDashboardData = async () => {
     try {
@@ -58,12 +57,12 @@ export const DashboardPage = () => {
     }
   };
 
-  const loadNextStep = async () => {
+  const loadPendingSteps = async () => {
     try {
-      const response = await apiClient.get<NextStep | null>('/analytics/next-step');
-      setNextStep(response.data);
+      const response = await apiClient.get<PendingStep[]>('/analytics/pending-steps');
+      setPendingSteps(response.data);
     } catch (error) {
-      console.error('Ошибка загрузки следующего шага плана:', error);
+      console.error('Ошибка загрузки шагов плана:', error);
     }
   };
 
@@ -73,23 +72,10 @@ export const DashboardPage = () => {
     fetchProfile();
     loadDashboardData();
     loadCachedInsight();
-    loadNextStep();
+    loadPendingSteps();
     /* eslint-enable react-hooks/set-state-in-effect */
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchProfile]);
-
-  const handleMoodSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await apiClient.post('/moods', { score: parseInt(moodScore), note: moodNote });
-      setMoodNote('');
-      toast.success('Настроение записано!');
-      loadDashboardData();
-    } catch (error) {
-      console.error('Ошибка сохранения настроения:', error);
-      toast.error(getApiErrorMessage(error) || 'Не удалось сохранить настроение.');
-    }
-  };
 
   const handleActivitySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,8 +105,8 @@ export const DashboardPage = () => {
     }
   };
 
-  const handleStepCompleted = () => {
-    loadNextStep();
+  const handleSessionFinished = () => {
+    loadPendingSteps();
     loadDashboardData();
   };
 
@@ -142,15 +128,21 @@ export const DashboardPage = () => {
   const todayActivities = activities.filter(a => new Date(a.createdAt).toLocaleDateString() === todayDateString);
   const todayMoods = moods.filter(m => new Date(m.createdAt).toLocaleDateString() === todayDateString);
 
-  // Форму "другая активность" прячем по умолчанию, если есть шаг плана — чтобы не отвлекать
-  // от основного сценария "выполнил шаг -> отметил". Без активного плана она открыта сразу.
-  const isFreeformActivityVisible = !nextStep || showFreeformActivity;
+  // Разовый вопрос "как прошел день" — если сегодня еще ни одной заметки настроения не было
+  const showDailyCheckin = todayMoods.length === 0 && !checkinDismissed;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
+      {showDailyCheckin && (
+        <DailyCheckinModal
+          onDone={() => { setCheckinDismissed(true); loadDashboardData(); }}
+          onSkip={() => setCheckinDismissed(true)}
+        />
+      )}
+
       <h1 className="text-3xl font-bold mb-2">С возвращением! 👋</h1>
 
-      {/* ИИ: план на вечер + следующий шаг — один общий блок на всю ширину */}
+      {/* ИИ: план на вечер + сессия развития — один общий блок на всю ширину */}
       <div className="rounded-2xl border border-purple-200 bg-purple-50 shadow-sm overflow-hidden">
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -174,64 +166,43 @@ export const DashboardPage = () => {
             </p>
           )}
 
-          {nextStep && <NextStepCard key={nextStep.stepId} step={nextStep} onCompleted={handleStepCompleted} />}
+          <DaySessionCard pendingSteps={pendingSteps} freeTimeEnd={profile.freeTimeEnd} onFinished={handleSessionFinished} />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-        {/* Итоги дня */}
-        <div className="space-y-6">
-          {/* Пока есть активный шаг плана — настроение спрашиваем в конце сессии (см. NextStepCard),
-              а не отдельной формой, чтобы не задавать один и тот же вопрос дважды */}
-          {!nextStep && (
-            <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-              <h2 className="text-xl font-bold mb-4 text-blue-900">Как настрой?</h2>
-              <form onSubmit={handleMoodSubmit} className="space-y-4">
+        {/* Что-то вне плана */}
+        <div className="bg-green-50 p-6 rounded-xl border border-green-100 md:col-span-2">
+          <button
+            onClick={() => setShowFreeformActivity((v) => !v)}
+            className="w-full flex items-center justify-between text-left"
+          >
+            <h2 className="text-xl font-bold text-green-900">Занимался чем-то ещё вне плана?</h2>
+            {showFreeformActivity ? <ChevronUp size={20} className="text-green-700" /> : <ChevronDown size={20} className="text-green-700" />}
+          </button>
+
+          {showFreeformActivity && (
+            categories.length === 0 ? (
+              <p className="text-red-500 mt-4">Сначала создай категорию в разделе "Цели и Категории"!</p>
+            ) : (
+              <form onSubmit={handleActivitySubmit} className="space-y-4 mt-4 max-w-xl">
+                <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border p-3 rounded-lg bg-white">
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+                <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border p-3 rounded-lg" required />
                 <div className="flex items-center gap-4">
-                  <label className="font-medium">Оценка (1-5):</label>
-                  <input type="number" min="1" max="5" value={moodScore} onChange={e => setMoodScore(e.target.value)} className="border p-2 w-20 rounded-lg" />
+                  <label className="font-medium">Минут:</label>
+                  <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border p-2 w-24 rounded-lg" />
                 </div>
-                <input type="text" placeholder="Короткая заметка..." value={moodNote} onChange={e => setMoodNote(e.target.value)} className="w-full border p-3 rounded-lg" required />
-                <button type="submit" className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700">Записать настроение</button>
+                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700">Добавить активность</button>
               </form>
-            </div>
+            )
           )}
-
-          <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-            {nextStep && (
-              <button
-                onClick={() => setShowFreeformActivity((v) => !v)}
-                className="w-full flex items-center justify-between text-left"
-              >
-                <h2 className="text-xl font-bold text-green-900">Занимался чем-то ещё?</h2>
-                {isFreeformActivityVisible ? <ChevronUp size={20} className="text-green-700" /> : <ChevronDown size={20} className="text-green-700" />}
-              </button>
-            )}
-            {!nextStep && <h2 className="text-xl font-bold mb-4 text-green-900">Что сделал полезного?</h2>}
-
-            {isFreeformActivityVisible && (
-              categories.length === 0 ? (
-                <p className="text-red-500 mt-4">Сначала создай категорию в разделе "Цели и Категории"!</p>
-              ) : (
-                <form onSubmit={handleActivitySubmit} className="space-y-4 mt-4">
-                  <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border p-3 rounded-lg bg-white">
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                  <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border p-3 rounded-lg" required />
-                  <div className="flex items-center gap-4">
-                    <label className="font-medium">Минут:</label>
-                    <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border p-2 w-24 rounded-lg" />
-                  </div>
-                  <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-700">Добавить активность</button>
-                </form>
-              )
-            )}
-          </div>
         </div>
 
         {/* Прогресс */}
-        <div>
+        <div className="md:col-span-2">
           <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
             <h3 className="font-bold text-gray-800 mb-4 text-lg">Прогресс за сегодня</h3>
             <div className="space-y-3">
