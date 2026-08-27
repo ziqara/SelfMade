@@ -5,6 +5,6 @@
       <stop offset="1" stop-color="#6d28d9"/>
     </linearGradient>
   </defs>
-  <rect width="48" height="48" rx="13" fill="url(#g)"/>
-  <text x="24" y="33" text-anchor="middle" font-family="-apple-system, 'Segoe UI', Arial, sans-serif" font-weight="700" font-size="25" fill="#f2f1f8">S</text>
+  <rect width="48" height="48" rx="9" fill="url(#g)"/>
+  <text x="24" y="33" text-anchor="middle" font-family="Arial, 'Helvetica Neue', sans-serif" font-weight="900" font-size="24" letter-spacing="-1" fill="#f2f1f8">S</text>
 </svg>
