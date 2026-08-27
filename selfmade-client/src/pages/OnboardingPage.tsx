@@ -27,9 +27,9 @@ export const OnboardingPage = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-10 p-6 bg-surface border border-border-subtle rounded-xl shadow-md">
-      <h2 className="text-2xl font-bold mb-2 text-text">Настройка профиля</h2>
-      <p className="text-text-muted mb-6">Заполни данные, чтобы ИИ мог составить расписание.</p>
+    <div className="max-w-xl mx-auto mt-10 p-6 bg-surface/60 backdrop-blur-2xl border border-border-subtle rounded-xl shadow-md">
+      <h2 className="heading-caps text-xl font-light text-text mb-2">Настройка профиля</h2>
+      <p className="text-text-muted font-light mb-6">Заполни данные, чтобы ИИ мог составить расписание.</p>
 
       <ProfileForm
         initialValues={{ freeTimeStart: '19:30', freeTimeEnd: '23:00', sleepTime: '23:30' }}

@@ -140,28 +140,28 @@ export const DashboardPage = () => {
         />
       )}
 
-      <h1 className="text-3xl font-bold mb-2 text-text">С возвращением! 👋</h1>
+      <h1 className="heading-caps text-2xl font-light text-text mb-2">С возвращением</h1>
 
       {/* ИИ: план на вечер + сессия развития — один общий блок на всю ширину */}
-      <div className="rounded-2xl border border-brand/20 bg-gradient-to-br from-brand-dark/30 via-surface to-surface shadow-lg shadow-black/20 overflow-hidden">
+      <div className="rounded-2xl border border-brand/20 bg-surface/60 backdrop-blur-2xl shadow-lg shadow-black/20 overflow-hidden">
         <div className="p-6 md:p-8">
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <h2 className="text-xl font-bold text-text">✨ Твой план на вечер</h2>
+            <h2 className="heading-caps text-sm font-medium text-brand-light">Твой план на вечер</h2>
             <button
               onClick={handleGetInsight}
               disabled={isAiLoading}
-              className={`text-sm font-bold px-4 py-2 rounded-lg text-white transition-colors ${
+              className={`text-sm font-medium px-4 py-2 rounded-lg text-white transition-colors ${
                 isAiLoading ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
               }`}
             >
-              {isAiLoading ? 'Анализирую день...' : aiInsight ? 'Обновить' : 'Получить совет от ИИ'}
+              {isAiLoading ? 'Анализирую день…' : aiInsight ? 'Обновить' : 'Получить совет от ИИ'}
             </button>
           </div>
 
           {aiInsight ? (
-            <div className="whitespace-pre-wrap text-text/90 leading-relaxed mt-4">{aiInsight}</div>
+            <div className="whitespace-pre-wrap text-text/90 leading-relaxed font-light mt-4">{aiInsight}</div>
           ) : (
-            <p className="text-text-muted mt-4">
+            <p className="text-text-muted font-light mt-4">
               Нажми «Получить совет от ИИ», чтобы узнать, чем заняться сегодня вечером.
             </p>
           )}
@@ -173,29 +173,29 @@ export const DashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
         {/* Что-то вне плана */}
-        <div className="bg-surface p-6 rounded-xl border border-border-subtle md:col-span-2">
+        <div className="bg-surface/60 backdrop-blur-2xl p-6 rounded-xl border border-border-subtle md:col-span-2">
           <button
             onClick={() => setShowFreeformActivity((v) => !v)}
             className="w-full flex items-center justify-between text-left"
           >
-            <h2 className="text-xl font-bold text-text">Занимался чем-то ещё вне плана?</h2>
+            <h2 className="heading-caps text-sm font-medium text-text">Занимался чем-то ещё вне плана?</h2>
             {showFreeformActivity ? <ChevronUp size={20} className="text-text-muted" /> : <ChevronDown size={20} className="text-text-muted" />}
           </button>
 
           {showFreeformActivity && (
             categories.length === 0 ? (
-              <p className="text-red-400 mt-4">Сначала создай категорию в разделе "Цели и Категории"!</p>
+              <p className="text-red-400 font-light mt-4">Сначала создай категорию в разделе «Цели и Категории».</p>
             ) : (
               <form onSubmit={handleActivitySubmit} className="space-y-4 mt-4 max-w-xl">
-                <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border border-border-subtle bg-surface-2 text-text p-3 rounded-lg">
+                <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border border-border-subtle bg-surface-2 text-text font-light p-3 rounded-lg">
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
-                <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border border-border-subtle bg-surface-2 text-text placeholder-text-muted p-3 rounded-lg" required />
+                <input type="text" placeholder="Что делал?" value={activityTitle} onChange={e => setActivityTitle(e.target.value)} className="w-full border border-border-subtle bg-surface-2 text-text placeholder-text-muted font-light p-3 rounded-lg" required />
                 <div className="flex items-center gap-4">
-                  <label className="font-medium text-text-muted">Минут:</label>
-                  <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border border-border-subtle bg-surface-2 text-text p-2 w-24 rounded-lg" />
+                  <label className="text-text-muted font-light">Минут:</label>
+                  <input type="number" min="1" value={duration} onChange={e => setDuration(e.target.value)} className="border border-border-subtle bg-surface-2 text-text font-light p-2 w-24 rounded-lg" />
                 </div>
-                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-bold hover:bg-green-500 transition-colors">Добавить активность</button>
+                <button type="submit" className="w-full bg-green-600 text-white p-3 rounded-lg font-medium hover:bg-green-500 transition-colors">Добавить активность</button>
               </form>
             )
           )}
@@ -203,20 +203,20 @@ export const DashboardPage = () => {
 
         {/* Прогресс */}
         <div className="md:col-span-2">
-          <div className="bg-surface p-6 rounded-xl border border-border-subtle shadow-sm">
-            <h3 className="font-bold text-text mb-4 text-lg">Прогресс за сегодня</h3>
+          <div className="bg-surface/60 backdrop-blur-2xl p-6 rounded-xl border border-border-subtle shadow-sm">
+            <h3 className="heading-caps text-sm font-medium text-text mb-4">Прогресс за сегодня</h3>
             <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-text-muted">Задач выполнено:</span>
-                <span className="font-bold text-green-400">{todayActivities.length}</span>
+              <div className="flex justify-between text-sm font-light">
+                <span className="text-text-muted">Задач выполнено</span>
+                <span className="font-medium text-green-400">{todayActivities.length}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-text-muted">Заметок настроения:</span>
-                <span className="font-bold text-blue-400">{todayMoods.length}</span>
+              <div className="flex justify-between text-sm font-light">
+                <span className="text-text-muted">Заметок настроения</span>
+                <span className="font-medium text-blue-400">{todayMoods.length}</span>
               </div>
-              <div className="flex justify-between text-sm pt-2 border-t border-border-subtle">
-                <span className="text-text-muted">Потрачено минут:</span>
-                <span className="font-bold text-text">{todayActivities.reduce((acc, curr) => acc + curr.durationMinutes, 0)} мин</span>
+              <div className="flex justify-between text-sm font-light pt-2 border-t border-border-subtle">
+                <span className="text-text-muted">Потрачено минут</span>
+                <span className="font-medium text-text">{todayActivities.reduce((acc, curr) => acc + curr.durationMinutes, 0)} мин</span>
               </div>
             </div>
           </div>

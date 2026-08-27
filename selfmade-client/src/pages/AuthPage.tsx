@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Lock, User, Sparkles } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 import { apiClient, getApiErrorMessage } from '../api/client'; // Твой настроенный axios
 import { useAuthStore } from '../store/authStore'; // Твой Zustand стор
 import { toast } from '../store/toastStore';
+import { GradientBackground } from '../components/GradientBackground';
 
 export const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -51,43 +52,32 @@ export const AuthPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-ink flex items-center justify-center p-4 overflow-hidden">
-      {/* Анимированные градиентные пятна на фоне */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-32 -left-24 w-[32rem] h-[32rem] rounded-full bg-brand/30 blur-3xl"
-          style={{ animation: 'floatBlob 18s ease-in-out infinite' }}
-        />
-        <div
-          className="absolute -bottom-40 -right-24 w-[36rem] h-[36rem] rounded-full bg-indigo-600/20 blur-3xl"
-          style={{ animation: 'floatBlob 22s ease-in-out infinite reverse' }}
-        />
-        <div
-          className="absolute top-1/3 right-1/4 w-64 h-64 rounded-full bg-fuchsia-500/10 blur-3xl"
-          style={{ animation: 'floatBlob 14s ease-in-out infinite' }}
-        />
-      </div>
+    <div className="relative min-h-screen bg-ink flex flex-col items-center justify-center p-4 overflow-hidden">
+      <GradientBackground />
+
+      {/* Вступительный блок: бренд + короткий слоган */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+        className="relative text-center mb-8"
+      >
+        <h1 className="heading-caps text-4xl sm:text-5xl font-light tracking-widest text-text">
+          SELFMADE
+        </h1>
+        <p className="heading-caps text-xs text-text-muted mt-3 tracking-[0.2em]">
+          Саморазвитие под руководством ИИ
+        </p>
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 24, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        className="relative w-full max-w-md bg-surface/80 backdrop-blur-xl border border-border-subtle rounded-2xl shadow-2xl shadow-black/40 p-8"
+        transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+        className="relative w-full max-w-md bg-surface/70 backdrop-blur-2xl border border-border-subtle rounded-2xl shadow-2xl shadow-black/40 p-8"
       >
-        <motion.div
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="flex items-center justify-center gap-2 mb-6"
-        >
-          <Sparkles className="text-brand-light" size={22} />
-          <span className="text-lg font-black tracking-tight bg-gradient-to-r from-brand-light to-fuchsia-400 bg-clip-text text-transparent">
-            SelfMade
-          </span>
-        </motion.div>
-
-        <h2 className="text-2xl font-bold text-center text-text mb-8">
-          {isLogin ? 'С возвращением!' : 'Создать аккаунт'}
+        <h2 className="text-xl font-medium text-center text-text mb-7">
+          {isLogin ? 'С возвращением' : 'Создать аккаунт'}
         </h2>
 
         <AnimatePresence mode="wait">
@@ -102,13 +92,13 @@ export const AuthPage = () => {
           >
             {!isLogin && (
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
                 <input
                   type="text"
                   placeholder="Имя пользователя (минимум 3 символа)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all font-light"
                   required
                   minLength={3}
                   maxLength={50}
@@ -117,25 +107,25 @@ export const AuthPage = () => {
             )}
 
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
               <input
                 type="email"
                 placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all font-light"
                 required
               />
             </div>
 
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={20} />
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
               <input
                 type="password"
                 placeholder={isLogin ? 'Пароль' : 'Пароль (минимум 6 символов)'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all"
+                className="w-full pl-10 pr-4 py-3 bg-surface-2 border border-border-subtle text-text placeholder-text-muted rounded-xl focus:ring-2 focus:ring-brand focus:outline-none transition-all font-light"
                 required
                 minLength={isLogin ? undefined : 6}
                 maxLength={100}
@@ -147,7 +137,7 @@ export const AuthPage = () => {
               whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
               type="submit"
               disabled={isSubmitting}
-              className={`w-full text-white font-semibold py-3 rounded-xl transition-colors shadow-lg shadow-brand/20 ${
+              className={`w-full text-white font-medium py-3 rounded-xl transition-colors shadow-lg shadow-brand/20 ${
                 isSubmitting ? 'bg-brand/50 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
               }`}
             >
@@ -156,11 +146,11 @@ export const AuthPage = () => {
           </motion.form>
         </AnimatePresence>
 
-        <div className="mt-6 text-center text-text-muted text-sm">
+        <div className="mt-6 text-center text-text-muted text-sm font-light">
           {isLogin ? 'Нет аккаунта? ' : 'Уже есть аккаунт? '}
           <button
             onClick={() => setIsLogin(!isLogin)}
-            className="text-brand-light font-semibold hover:underline"
+            className="text-brand-light font-medium hover:underline"
           >
             {isLogin ? 'Зарегистрироваться' : 'Войти'}
           </button>

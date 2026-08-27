@@ -162,7 +162,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
             <span className="font-mono text-lg font-bold text-brand-light">{formatElapsed(elapsedSec)}</span>
             <button
               onClick={handleFinishClick}
-              className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all"
+              className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all"
             >
               <Square size={14} />
               Закончить развиваться
@@ -209,7 +209,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
       {sessionState === 'finishing' && (
         <div className="space-y-3 bg-surface-2 p-4 rounded-lg border border-border-subtle">
           <div className="flex items-center justify-between">
-            <h4 className="font-bold text-text">Как прошла сессия?</h4>
+            <h4 className="heading-caps text-sm font-medium text-text">Как прошла сессия?</h4>
             <button onClick={resetSession} className="text-text-muted hover:text-text" aria-label="Отменить">
               <X size={16} />
             </button>
@@ -256,7 +256,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
           <button
             onClick={handleSubmitFinish}
             disabled={isSubmitting}
-            className={`w-full flex items-center justify-center gap-2 text-white text-sm font-bold px-4 py-2 rounded-lg transition-colors ${
+            className={`w-full flex items-center justify-center gap-2 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ${
               isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
             }`}
           >

@@ -11,6 +11,7 @@
   --color-brand: #8b5cf6;
   --color-brand-light: #a78bfa;
   --color-brand-dark: #6d28d9;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
 }
 
 html {
@@ -20,6 +21,15 @@ html {
 body {
   background: var(--color-ink);
   color: var(--color-text);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Заголовки капсом с разрядкой — общий macOS-подобный акцент на брендовых/секционных заголовках */
+.heading-caps {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 @keyframes fadeIn {
@@ -42,5 +52,26 @@ body {
   }
   66% {
     transform: translate(-3%, 4%) scale(0.95);
+  }
+}
+
+@keyframes floatBlobAlt {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  40% {
+    transform: translate(-5%, 5%) scale(1.1);
+  }
+  70% {
+    transform: translate(3%, -4%) scale(0.92);
+  }
+}
+
+@keyframes hueShift {
+  0%, 100% {
+    filter: blur(80px) hue-rotate(0deg);
+  }
+  50% {
+    filter: blur(80px) hue-rotate(35deg);
   }
 }

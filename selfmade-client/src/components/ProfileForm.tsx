@@ -50,31 +50,31 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
-          <label className="block text-sm font-bold text-text-muted mb-2">Вектор развития (что учим?)</label>
+          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Вектор развития (что учим?)</label>
           <input
             type="text"
             value={values.learningTrack}
             onChange={(e) => setField('learningTrack', e.target.value)}
             required
             placeholder="Например: C# ASP.NET Core"
-            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted p-2 rounded"
+            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
 
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
-          <label className="block text-sm font-bold text-text-muted mb-2">Текущий уровень</label>
+          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Текущий уровень</label>
           <input
             type="text"
             value={values.currentLevel}
             onChange={(e) => setField('currentLevel', e.target.value)}
             placeholder="Например: Junior+"
-            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted p-2 rounded"
+            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
       </div>
 
       <div className="bg-brand/10 p-6 rounded-lg border border-brand/20">
-        <h3 className="font-bold text-brand-light mb-4">Твое расписание</h3>
+        <h3 className="heading-caps text-sm font-medium text-brand-light mb-4">Твое расписание</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm text-text-muted mb-1">Свободное время (от):</label>
@@ -83,7 +83,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
               value={values.freeTimeStart}
               onChange={(e) => setField('freeTimeStart', e.target.value)}
               required
-              className="w-full border border-border-subtle bg-surface text-text p-2 rounded"
+              className="w-full border border-border-subtle bg-surface text-text font-light p-2 rounded"
             />
           </div>
           <div>
@@ -93,7 +93,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
               value={values.freeTimeEnd}
               onChange={(e) => setField('freeTimeEnd', e.target.value)}
               required
-              className="w-full border border-border-subtle bg-surface text-text p-2 rounded"
+              className="w-full border border-border-subtle bg-surface text-text font-light p-2 rounded"
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
               value={values.sleepTime}
               onChange={(e) => setField('sleepTime', e.target.value)}
               required
-              className="w-full border border-border-subtle bg-surface text-text p-2 rounded"
+              className="w-full border border-border-subtle bg-surface text-text font-light p-2 rounded"
             />
           </div>
         </div>
@@ -111,25 +111,25 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
-          <label className="block text-sm font-bold text-text-muted mb-2">Любимый отдых</label>
+          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Любимый отдых</label>
           <input
             type="text"
             value={values.preferredRest}
             onChange={(e) => setField('preferredRest', e.target.value)}
             required
             placeholder="Например: Sci-Fi, прогулки"
-            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted p-2 rounded"
+            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
 
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
-          <label className="block text-sm font-bold text-text-muted mb-2">Нежелательный отдых</label>
+          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Нежелательный отдых</label>
           <input
             type="text"
             value={values.dislikedRest}
             onChange={(e) => setField('dislikedRest', e.target.value)}
             placeholder="Например: Бег, клубы"
-            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted p-2 rounded"
+            className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
       </div>
@@ -137,7 +137,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
       <button
         type="submit"
         disabled={isSaving}
-        className={`w-full text-white p-4 rounded-xl font-bold transition-colors ${
+        className={`w-full text-white p-4 rounded-xl font-medium transition-colors ${
           isSaving ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
         }`}
       >

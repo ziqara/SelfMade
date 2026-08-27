@@ -8,7 +8,9 @@ interface DailyCheckinModalProps {
   onSkip: () => void;
 }
 
-const MOOD_EMOJIS = ['😫', '☹️', '😐', '🙂', '🤩'];
+const MOOD_LABELS = ['Тяжело', 'Так себе', 'Нормально', 'Хорошо', 'Отлично'];
+const moodColor = (value: number) =>
+  value >= 4 ? 'bg-green-400' : value === 3 ? 'bg-amber-400' : 'bg-red-400';
 
 // Разовый вопрос при первом заходе за день — общий сбор данных о том, как прошел день,
 // а не только про учебу/план от ИИ.
@@ -39,22 +41,27 @@ export const DailyCheckinModal = ({ onDone, onSkip }: DailyCheckinModalProps) =>
         transition={{ duration: 0.3, ease: 'easeOut' }}
         className="w-full max-w-md bg-surface border border-border-subtle rounded-2xl shadow-2xl shadow-black/40 p-6"
       >
-        <h2 className="text-xl font-bold text-text">Как прошел день? 👋</h2>
-        <p className="text-text-muted text-sm mt-1">Пара слов — это поможет ИИ давать более точные советы.</p>
+        <h2 className="text-xl font-medium text-text">Как прошел день?</h2>
+        <p className="text-text-muted font-light text-sm mt-1">Пара слов — это поможет ИИ давать более точные советы.</p>
 
         <div className="flex justify-between mt-6 mb-4">
-          {MOOD_EMOJIS.map((emoji, i) => {
+          {MOOD_LABELS.map((label, i) => {
             const value = i + 1;
             return (
               <button
                 key={value}
                 onClick={() => setScore(value)}
-                className={`text-3xl w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                  score === value ? 'bg-brand/20 scale-110' : 'hover:bg-surface-2'
-                }`}
-                aria-label={`Оценка ${value}`}
+                className="flex flex-col items-center gap-1.5 group"
+                aria-label={label}
               >
-                {emoji}
+                <span
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
+                    score === value ? `${moodColor(value)} text-ink scale-110` : 'bg-surface-2 text-text-muted group-hover:bg-border-subtle'
+                  }`}
+                >
+                  {value}
+                </span>
+                <span className={`text-[10px] font-light ${score === value ? 'text-text' : 'text-text-muted'}`}>{label}</span>
               </button>
             );
           })}
@@ -65,20 +72,20 @@ export const DailyCheckinModal = ({ onDone, onSkip }: DailyCheckinModalProps) =>
           value={note}
           onChange={(e) => setNote(e.target.value)}
           rows={3}
-          className="w-full border border-border-subtle bg-surface-2 text-text placeholder-text-muted p-3 rounded-lg text-sm resize-none"
+          className="w-full border border-border-subtle bg-surface-2 text-text placeholder-text-muted font-light p-3 rounded-lg text-sm resize-none"
         />
 
         <div className="flex gap-3 mt-4">
           <button
             onClick={onSkip}
-            className="flex-1 text-text-muted font-medium py-3 rounded-xl hover:bg-surface-2 transition-colors"
+            className="flex-1 text-text-muted font-normal py-3 rounded-xl hover:bg-surface-2 transition-colors"
           >
             Пропустить
           </button>
           <button
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className={`flex-1 text-white font-bold py-3 rounded-xl transition-colors ${
+            className={`flex-1 text-white font-medium py-3 rounded-xl transition-colors ${
               isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
             }`}
           >
