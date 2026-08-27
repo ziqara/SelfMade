@@ -138,7 +138,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
         type="submit"
         disabled={isSaving}
         className={`w-full text-white p-4 rounded-xl font-medium transition-colors ${
-          isSaving ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
+          isSaving ? 'bg-brand/40 cursor-wait' : 'bg-linear-to-r from-brand to-brand-dark hover:brightness-110'
         }`}
       >
         {isSaving ? savingLabel : submitLabel}

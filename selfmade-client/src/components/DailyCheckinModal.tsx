@@ -86,7 +86,7 @@ export const DailyCheckinModal = ({ onDone, onSkip }: DailyCheckinModalProps) =>
             onClick={handleSubmit}
             disabled={isSubmitting}
             className={`flex-1 text-white font-medium py-3 rounded-xl transition-colors ${
-              isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
+              isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-linear-to-r from-brand to-brand-dark hover:brightness-110'
             }`}
           >
             {isSubmitting ? 'Сохраняю...' : 'Записать'}

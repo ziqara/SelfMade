@@ -52,7 +52,7 @@ export const AuthPage = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-ink flex flex-col items-center justify-center p-4 overflow-hidden">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-4 overflow-hidden">
       <GradientBackground />
 
       {/* Вступительный блок: бренд + короткий слоган */}
@@ -138,7 +138,7 @@ export const AuthPage = () => {
               type="submit"
               disabled={isSubmitting}
               className={`w-full text-white font-medium py-3 rounded-xl transition-colors shadow-lg shadow-brand/20 ${
-                isSubmitting ? 'bg-brand/50 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
+                isSubmitting ? 'bg-brand/50 cursor-wait' : 'bg-linear-to-r from-brand to-brand-dark hover:brightness-110'
               }`}
             >
               {isSubmitting ? 'Секунду...' : isLogin ? 'Войти' : 'Зарегистрироваться'}

@@ -148,7 +148,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
           </p>
           <button
             onClick={handleStart}
-            className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all"
+            className="flex items-center gap-2 bg-linear-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-bold px-4 py-2 rounded-lg transition-all"
           >
             <Play size={16} />
             Начать развиваться
@@ -162,7 +162,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
             <span className="font-mono text-lg font-bold text-brand-light">{formatElapsed(elapsedSec)}</span>
             <button
               onClick={handleFinishClick}
-              className="flex items-center gap-2 bg-gradient-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all"
+              className="flex items-center gap-2 bg-linear-to-r from-brand to-brand-dark hover:brightness-110 text-white text-sm font-medium px-4 py-2 rounded-lg transition-all"
             >
               <Square size={14} />
               Закончить развиваться
@@ -257,7 +257,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
             onClick={handleSubmitFinish}
             disabled={isSubmitting}
             className={`w-full flex items-center justify-center gap-2 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors ${
-              isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-gradient-to-r from-brand to-brand-dark hover:brightness-110'
+              isSubmitting ? 'bg-brand/40 cursor-wait' : 'bg-linear-to-r from-brand to-brand-dark hover:brightness-110'
             }`}
           >
             <CheckCircle2 size={16} />
