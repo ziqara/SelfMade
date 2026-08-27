@@ -99,7 +99,7 @@ export const HistoryPage = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
     <div className="w-full max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-6 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-3">История прогресса</h1>
+      <h1 className="heading-caps text-2xl font-light text-text mb-3 text-center">История прогресса</h1>
 
       {summary && summary.goalsProgress.length > 0 && (
         <div className="mb-5">

@@ -104,8 +104,8 @@ export const GoalsPage = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
     <div className="w-full max-w-3xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-2">Цели и категории</h1>
-      <p className="text-text-muted font-light text-sm mb-8">
+      <h1 className="heading-caps text-2xl font-light text-text mb-2 text-center">Цели и категории</h1>
+      <p className="text-text-muted font-light text-sm mb-8 text-center">
         Скажи в «Профиле», что хочешь освоить — конкретные цели внутри направления придумывает ИИ.
         Тебе останется только отмечать шаги по пути и оценивать настроение.
       </p>
