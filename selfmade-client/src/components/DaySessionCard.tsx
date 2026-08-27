@@ -238,7 +238,7 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
           )}
 
           {pendingSteps.length > 0 && (
-            <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <ul className="space-y-2 max-h-[159px] overflow-y-auto pr-1">
               {pendingSteps.map((step) => (
                 <li key={step.stepId} className="flex items-start gap-2 bg-surface-2 border border-border-subtle rounded-lg p-3">
                   <input

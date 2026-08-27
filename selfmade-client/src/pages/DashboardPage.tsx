@@ -121,7 +121,7 @@ export const DashboardPage = () => {
   if (isLoading || isDataLoading) {
     return (
       <div className="min-h-[80vh] flex items-center justify-center">
-        <div className="w-full max-w-2xl space-y-4 animate-pulse">
+        <div className="w-full max-w-3xl space-y-4 animate-pulse">
           <div className="h-64 bg-surface-2/60 rounded-2xl" />
         </div>
       </div>
@@ -146,7 +146,7 @@ export const DashboardPage = () => {
       )}
 
       {/* Единственный главный элемент экрана: ИИ-ассистент */}
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-3xl">
         {!hasVisitedHelp && !hasDismissedWelcomeTip && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -191,7 +191,7 @@ export const DashboardPage = () => {
             </div>
 
             {aiInsight ? (
-              <div className="max-h-80 overflow-y-auto pr-1 mt-4">
+              <div className="max-h-56 overflow-y-auto pr-1 mt-4">
                 <div className="whitespace-pre-wrap text-text/90 leading-relaxed font-light">{stripMarkdown(aiInsight)}</div>
               </div>
             ) : (
