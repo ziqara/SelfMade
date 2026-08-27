@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { Sparkles, Target, PlayCircle, CalendarDays, Settings } from 'lucide-react';
+import { useHelpHintStore } from '../store/helpHintStore';
 
 const STEPS = [
   {
@@ -29,29 +31,35 @@ const STEPS = [
 ];
 
 export const HelpPage = () => {
+  const markHelpVisited = useHelpHintStore((state) => state.markHelpVisited);
+
+  useEffect(() => {
+    markHelpVisited();
+  }, [markHelpVisited]);
+
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
-    <div className="w-full max-w-4xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-6 md:p-7 border border-border-subtle">
+    <div className="w-full max-w-5xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-6 md:p-7 border border-border-subtle">
       <h1 className="heading-caps text-2xl font-light text-text mb-1 text-center">Как это работает</h1>
       <p className="text-text-muted font-light text-sm mb-5 text-center">
         Коротко про весь цикл — от настройки профиля до совета от ИИ на вечер.
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {STEPS.map(({ icon: Icon, title, text }) => (
           <div key={title} className="flex gap-3 bg-surface-2 border border-border-subtle rounded-xl p-3.5">
             <div className="w-8 h-8 rounded-lg bg-linear-to-br from-brand to-brand-dark flex items-center justify-center shrink-0">
               <Icon size={15} className="text-white" />
             </div>
             <div>
-              <h2 className="heading-caps text-xs font-medium text-text mb-0.5">{title}</h2>
-              <p className="text-text-muted font-light text-xs leading-snug">{text}</p>
+              <h2 className="heading-caps text-sm font-medium text-text mb-1">{title}</h2>
+              <p className="text-text-muted font-light text-sm leading-snug">{text}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <p className="text-text-muted font-light text-xs leading-snug text-center mt-5">
+      <p className="text-text-muted font-light text-sm leading-snug text-center mt-5">
         Совет: заметки настроения и рефлексия — не формальность. ИИ читает их при следующем совете,
         так что чем честнее и конкретнее, тем полезнее рекомендации.
       </p>

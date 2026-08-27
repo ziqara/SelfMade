@@ -10,6 +10,7 @@ export const GoalsPage = () => {
   const [interests, setInterests] = useState<UserInterest[]>([]);
   const [isGeneratingGoals, setIsGeneratingGoals] = useState(false);
   const [showManualForms, setShowManualForms] = useState(false);
+  const [showAllGoals, setShowAllGoals] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   // Состояния форм
@@ -137,21 +138,35 @@ export const GoalsPage = () => {
           {interests.length === 0 ? (
             <p className="text-text-muted font-light text-sm">Цели пока не добавлены.</p>
           ) : (
-            <ul className="space-y-3">
-              {interests.map(interest => (
-                <li key={interest.id} className="p-4 bg-surface-2 border border-border-subtle rounded-lg shadow-sm">
-                  <div className="flex items-start gap-3">
-                    {interest.isDevelopmentGoal
-                      ? <Target size={18} className="text-rose-400 shrink-0 mt-0.5" />
-                      : <Bookmark size={18} className="text-text-muted shrink-0 mt-0.5" />}
-                    <span className="font-medium text-sm text-text">{interest.title}</span>
-                  </div>
-                  {interest.isDevelopmentGoal && (
-                    <GoalPlanCard goalId={interest.id} goalTitle={interest.title} />
+            <>
+              <ul className="space-y-3">
+                {(showAllGoals ? interests : interests.slice(0, 3)).map(interest => (
+                  <li key={interest.id} className="p-4 bg-surface-2 border border-border-subtle rounded-lg shadow-sm">
+                    <div className="flex items-start gap-3">
+                      {interest.isDevelopmentGoal
+                        ? <Target size={18} className="text-rose-400 shrink-0 mt-0.5" />
+                        : <Bookmark size={18} className="text-text-muted shrink-0 mt-0.5" />}
+                      <span className="font-medium text-sm text-text">{interest.title}</span>
+                    </div>
+                    {interest.isDevelopmentGoal && (
+                      <GoalPlanCard goalId={interest.id} goalTitle={interest.title} />
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {interests.length > 3 && (
+                <button
+                  onClick={() => setShowAllGoals((v) => !v)}
+                  className="w-full flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted hover:text-text transition-colors mt-3 py-1"
+                >
+                  {showAllGoals ? (
+                    <>Свернуть <ChevronUp size={14} /></>
+                  ) : (
+                    <>Показать ещё {interests.length - 3} <ChevronDown size={14} /></>
                   )}
-                </li>
-              ))}
-            </ul>
+                </button>
+              )}
+            </>
           )}
         </div>
       )}

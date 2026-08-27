@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { ChevronDown, ChevronUp, Compass, X } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { useHelpHintStore } from '../store/helpHintStore';
 import { OnboardingPage } from './OnboardingPage';
 import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
@@ -13,6 +16,7 @@ const stripMarkdown = (text: string) => text.replace(/\*\*/g, '').replace(/`/g, 
 
 export const DashboardPage = () => {
   const { profile, fetchProfile, isLoading } = useAuthStore();
+  const { hasVisitedHelp, hasDismissedWelcomeTip, dismissWelcomeTip } = useHelpHintStore();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -143,6 +147,34 @@ export const DashboardPage = () => {
 
       {/* Единственный главный элемент экрана: ИИ-ассистент */}
       <div className="w-full max-w-2xl">
+        {!hasVisitedHelp && !hasDismissedWelcomeTip && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="flex items-center gap-3 bg-brand/10 border border-brand/25 rounded-xl px-4 py-3 mb-4"
+          >
+            <Compass size={18} className="text-brand-light shrink-0" />
+            <p className="flex-1 text-sm text-text font-light">
+              Новичок здесь? Загляни в <span className="font-medium">«Как это работает»</span> — весь цикл за 30 секунд.
+            </p>
+            <Link
+              to="/help"
+              onClick={dismissWelcomeTip}
+              className="text-sm font-medium text-brand-light hover:underline shrink-0"
+            >
+              Посмотреть
+            </Link>
+            <button
+              onClick={dismissWelcomeTip}
+              aria-label="Скрыть подсказку"
+              className="text-text-muted hover:text-text shrink-0"
+            >
+              <X size={16} />
+            </button>
+          </motion.div>
+        )}
+
         <div className="rounded-2xl border border-brand/20 bg-surface/60 backdrop-blur-2xl shadow-2xl shadow-black/30 overflow-hidden">
           <div className="p-6 md:p-10">
             <div className="flex items-center justify-between gap-4 flex-wrap mb-1">

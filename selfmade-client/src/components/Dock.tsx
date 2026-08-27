@@ -2,6 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Home, CalendarDays, Target, Settings, HelpCircle, LogOut } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
+import { useHelpHintStore } from '../store/helpHintStore';
 
 const NAV_ITEMS = [
   { to: '/', end: true, icon: Home, label: 'Главная' },
@@ -14,6 +15,7 @@ const NAV_ITEMS = [
 // Навигация в стиле Dock macOS: плавающая стеклянная панель внизу экрана, всегда на виду.
 export const Dock = () => {
   const logout = useAuthStore((state) => state.logout);
+  const hasVisitedHelp = useHelpHintStore((state) => state.hasVisitedHelp);
   const location = useLocation();
 
   return (
@@ -36,6 +38,9 @@ export const Dock = () => {
             >
               <Icon size={20} />
             </div>
+            {to === '/help' && !hasVisitedHelp && (
+              <span className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full bg-rose-500 ring-2 ring-surface animate-pulse" />
+            )}
             <span className="pointer-events-none absolute -top-9 opacity-0 group-hover:opacity-100 transition-opacity heading-caps text-[10px] font-medium text-text bg-surface border border-border-subtle rounded-md px-2 py-1 whitespace-nowrap">
               {label}
             </span>
