@@ -38,6 +38,15 @@ public class CategoriesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult> CreateCategory([FromBody] CategoryDto request)
     {
+        // Категории общие для всех пользователей — если кто-то уже создал такую (без учета
+        // регистра), переиспользуем ее вместо дубля, чтобы не плодить "Программирование",
+        // "программирование", "ПРОГРАММИРОВАНИЕ" и т.п.
+        var existing = await _categoryRepository.GetByNameAsync(request.Name);
+        if (existing != null)
+        {
+            return Ok(new { message = "Такая категория уже есть, используем её.", categoryId = existing.Id });
+        }
+
         var category = new Category
         {
             Name = request.Name,
