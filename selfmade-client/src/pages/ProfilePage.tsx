@@ -28,29 +28,35 @@ export const ProfilePage = () => {
   };
 
   if (!profile) {
-    return <div className="p-8 text-text-muted font-light">Загрузка профиля...</div>;
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center text-text-muted font-light">
+        Загрузка профиля...
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-3xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-2">Настройки ИИ-наставника</h1>
-      <p className="text-text-muted font-light mb-8">Обнови свое расписание и векторы развития, чтобы ИИ давал более точные советы.</p>
+    <div className="min-h-[80vh] flex items-center justify-center">
+      <div className="w-full max-w-3xl bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-8 md:p-10 border border-border-subtle">
+        <h1 className="heading-caps text-2xl font-light text-text mb-2 text-center">Настройки ИИ-наставника</h1>
+        <p className="text-text-muted font-light mb-8 text-center">Обнови свое расписание и общее направление, чтобы ИИ давал более точные советы.</p>
 
-      <ProfileForm
-        initialValues={{
-          learningTrack: profile.learningTrack || '',
-          currentLevel: profile.currentLevel || '',
-          preferredRest: profile.preferredRest || '',
-          dislikedRest: profile.dislikedRest || '',
-          // Обрезаем секунды "HH:mm:ss" -> "HH:mm" для HTML-инпутов
-          freeTimeStart: profile.freeTimeStart?.substring(0, 5) || '19:00',
-          freeTimeEnd: profile.freeTimeEnd?.substring(0, 5) || '22:00',
-          sleepTime: profile.sleepTime?.substring(0, 5) || '23:00',
-        }}
-        onSubmit={handleSubmit}
-        submitLabel="Сохранить изменения"
-        savingLabel="Сохранение..."
-      />
+        <ProfileForm
+          initialValues={{
+            learningTrack: profile.learningTrack || '',
+            currentLevel: profile.currentLevel || '',
+            preferredRest: profile.preferredRest || '',
+            dislikedRest: profile.dislikedRest || '',
+            // Обрезаем секунды "HH:mm:ss" -> "HH:mm" для HTML-инпутов
+            freeTimeStart: profile.freeTimeStart?.substring(0, 5) || '19:00',
+            freeTimeEnd: profile.freeTimeEnd?.substring(0, 5) || '22:00',
+            sleepTime: profile.sleepTime?.substring(0, 5) || '23:00',
+          }}
+          onSubmit={handleSubmit}
+          submitLabel="Сохранить изменения"
+          savingLabel="Сохранение..."
+        />
+      </div>
     </div>
   );
 };

@@ -68,7 +68,10 @@ export const GoalsPage = () => {
 
   return (
     <div className="max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
-      <h1 className="heading-caps text-2xl font-light text-text mb-8">Цели и категории</h1>
+      <h1 className="heading-caps text-2xl font-light text-text mb-2">Цели и категории</h1>
+      <p className="text-text-muted font-light mb-8">
+        Конкретные шаги в рамках общего направления, которое задано в «Профиле». Каждая цель привязана к категории — общей теме вроде «Программирование» или «Спорт».
+      </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
 
@@ -77,7 +80,7 @@ export const GoalsPage = () => {
           <div className="bg-surface-2 p-6 rounded-xl border border-border-subtle">
             <h2 className="heading-caps text-sm font-medium mb-4 text-text-muted">1. Создать категорию</h2>
             <form onSubmit={handleCategorySubmit} className="space-y-4">
-              <input type="text" placeholder="Название (напр. Программирование)" value={categoryName} onChange={e => setCategoryName(e.target.value)} className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-3 rounded-lg" required />
+              <input type="text" placeholder="Программирование" value={categoryName} onChange={e => setCategoryName(e.target.value)} className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-3 rounded-lg" required />
               <input type="text" placeholder="Описание (опционально)" value={categoryDesc} onChange={e => setCategoryDesc(e.target.value)} className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-3 rounded-lg" />
               <div className="flex items-center gap-4">
                 <label className="text-text-muted font-light">Тип:</label>
@@ -93,8 +96,8 @@ export const GoalsPage = () => {
             </form>
           </div>
 
-          <div className="bg-orange-500/10 p-6 rounded-xl border border-orange-500/20">
-            <h2 className="heading-caps text-sm font-medium mb-4 text-orange-300">2. Добавить цель развития</h2>
+          <div className="bg-rose-500/10 p-6 rounded-xl border border-rose-500/20">
+            <h2 className="heading-caps text-sm font-medium mb-4 text-rose-300">2. Добавить цель развития</h2>
             <form onSubmit={handleInterestSubmit} className="space-y-4">
               {categories.length > 0 ? (
                 <select value={selectedCategoryId} onChange={e => setSelectedCategoryId(e.target.value)} className="w-full border border-border-subtle p-3 rounded-lg bg-surface text-text font-light">
@@ -103,12 +106,12 @@ export const GoalsPage = () => {
               ) : (
                 <p className="text-sm text-red-400 font-light mb-2">Сначала создайте категорию выше.</p>
               )}
-              <input type="text" placeholder="Например: Сделать аутентификацию" value={interestTitle} onChange={e => setInterestTitle(e.target.value)} className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-3 rounded-lg" required />
+              <input type="text" placeholder="Сделать аутентификацию" value={interestTitle} onChange={e => setInterestTitle(e.target.value)} className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-3 rounded-lg" required />
               <label className="flex items-center gap-3 cursor-pointer p-2">
-                <input type="checkbox" checked={isDevGoal} onChange={e => setIsDevGoal(e.target.checked)} className="w-5 h-5 rounded text-orange-500" />
+                <input type="checkbox" checked={isDevGoal} onChange={e => setIsDevGoal(e.target.checked)} className="w-5 h-5 rounded text-rose-500" />
                 <span className="text-text font-light">Это цель для развития (увидит ИИ)</span>
               </label>
-              <button type="submit" className="w-full bg-orange-500 text-white p-3 rounded-lg font-medium hover:bg-orange-400 transition-colors">Сохранить цель</button>
+              <button type="submit" className="w-full bg-rose-500 text-white p-3 rounded-lg font-medium hover:bg-rose-400 transition-colors">Сохранить цель</button>
             </form>
           </div>
         </div>
@@ -116,7 +119,7 @@ export const GoalsPage = () => {
         {/* Правая колонка: Списки */}
         <div className="space-y-8">
           <div>
-            <h2 className="heading-caps text-sm font-medium mb-4 text-orange-300">Твои глобальные цели</h2>
+            <h2 className="heading-caps text-sm font-medium mb-4 text-rose-300">Твои глобальные цели</h2>
             {interests.length === 0 ? (
               <p className="text-text-muted font-light">Цели пока не добавлены.</p>
             ) : (
@@ -125,7 +128,7 @@ export const GoalsPage = () => {
                   <li key={interest.id} className="p-4 bg-surface-2 border border-border-subtle rounded-lg shadow-sm">
                     <div className="flex items-start gap-3">
                       {interest.isDevelopmentGoal
-                        ? <Target size={18} className="text-orange-400 shrink-0 mt-0.5" />
+                        ? <Target size={18} className="text-rose-400 shrink-0 mt-0.5" />
                         : <Bookmark size={18} className="text-text-muted shrink-0 mt-0.5" />}
                       <span className="font-normal text-text">{interest.title}</span>
                     </div>

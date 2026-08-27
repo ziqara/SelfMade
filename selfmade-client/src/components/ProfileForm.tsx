@@ -50,15 +50,18 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
-          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Вектор развития (что учим?)</label>
+          <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Общее направление</label>
           <input
             type="text"
             value={values.learningTrack}
             onChange={(e) => setField('learningTrack', e.target.value)}
             required
-            placeholder="Например: C# ASP.NET Core"
+            placeholder="C# ASP.NET Core"
             className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
+          <p className="text-xs text-text-muted font-light mt-1.5">
+            Общая тема. Конкретные цели и шаги — во вкладке «Цели и категории».
+          </p>
         </div>
 
         <div className="bg-surface-2 p-4 rounded-lg border border-border-subtle">
@@ -67,7 +70,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             type="text"
             value={values.currentLevel}
             onChange={(e) => setField('currentLevel', e.target.value)}
-            placeholder="Например: Junior+"
+            placeholder="Junior+"
             className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
@@ -77,7 +80,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
         <h3 className="heading-caps text-sm font-medium text-brand-light mb-4">Твое расписание</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm text-text-muted mb-1">Свободное время (от):</label>
+            <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Свободное время (от)</label>
             <input
               type="time"
               value={values.freeTimeStart}
@@ -87,7 +90,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             />
           </div>
           <div>
-            <label className="block text-sm text-text-muted mb-1">Свободное время (до):</label>
+            <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Свободное время (до)</label>
             <input
               type="time"
               value={values.freeTimeEnd}
@@ -97,7 +100,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             />
           </div>
           <div>
-            <label className="block text-sm text-text-muted mb-1">Время сна:</label>
+            <label className="heading-caps block text-xs font-medium text-text-muted mb-2">Время сна</label>
             <input
               type="time"
               value={values.sleepTime}
@@ -117,7 +120,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             value={values.preferredRest}
             onChange={(e) => setField('preferredRest', e.target.value)}
             required
-            placeholder="Например: Sci-Fi, прогулки"
+            placeholder="Sci-Fi, прогулки"
             className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>
@@ -128,7 +131,7 @@ export const ProfileForm = ({ initialValues, onSubmit, submitLabel, savingLabel 
             type="text"
             value={values.dislikedRest}
             onChange={(e) => setField('dislikedRest', e.target.value)}
-            placeholder="Например: Бег, клубы"
+            placeholder="Бег, клубы"
             className="w-full border border-border-subtle bg-surface text-text placeholder-text-muted font-light p-2 rounded"
           />
         </div>

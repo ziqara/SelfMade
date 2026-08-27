@@ -69,10 +69,10 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
   const completedCount = steps?.filter((s) => s.status === 'completed').length ?? 0;
 
   return (
-    <div className="mt-2 border-t border-orange-500/20 pt-2">
+    <div className="mt-2 border-t border-rose-500/20 pt-2">
       <button
         onClick={handleExpand}
-        className="flex items-center gap-1 text-sm font-medium text-orange-400 hover:text-orange-300 transition-colors"
+        className="flex items-center gap-1 text-sm font-medium text-rose-400 hover:text-rose-300 transition-colors"
       >
         <Sparkles size={14} />
         План от ИИ
@@ -95,7 +95,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
                       type="checkbox"
                       checked={step.status === 'completed'}
                       onChange={() => handleToggle(step.id)}
-                      className="mt-1 w-4 h-4 rounded text-orange-500 shrink-0 cursor-pointer"
+                      className="mt-1 w-4 h-4 rounded text-rose-500 shrink-0 cursor-pointer"
                     />
                     <div>
                       <p className={`font-medium text-sm ${step.status === 'completed' ? 'text-text-muted line-through' : 'text-text'}`}>
@@ -113,7 +113,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
               <button
                 onClick={handleGenerate}
                 disabled={isGenerating}
-                className="text-xs text-text-muted hover:text-orange-400 transition-colors disabled:opacity-50"
+                className="text-xs text-text-muted hover:text-rose-400 transition-colors disabled:opacity-50"
               >
                 {isGenerating ? 'Пересоставляю...' : 'Составить план заново'}
               </button>
@@ -123,7 +123,7 @@ export const GoalPlanCard = ({ goalId, goalTitle }: GoalPlanCardProps) => {
               onClick={handleGenerate}
               disabled={isGenerating}
               className={`w-full text-sm text-white px-4 py-2 rounded-lg font-medium transition-colors ${
-                isGenerating ? 'bg-orange-500/50 cursor-wait' : 'bg-orange-500 hover:bg-orange-400'
+                isGenerating ? 'bg-rose-500/50 cursor-wait' : 'bg-rose-500 hover:bg-rose-400'
               }`}
             >
               {isGenerating ? 'Составляю план...' : `Составить план для «${goalTitle}»`}

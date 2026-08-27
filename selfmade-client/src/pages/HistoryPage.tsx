@@ -131,7 +131,7 @@ export const HistoryPage = () => {
                     </span>
                   </div>
                   <p className="text-text-muted font-light bg-surface p-3 rounded-lg border border-border-subtle whitespace-pre-wrap">
-                    «{mood.note}»
+                    {mood.note}
                   </p>
                 </div>
               ))}

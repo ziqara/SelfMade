@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { Play, Square, CheckCircle2, X, Coffee } from 'lucide-react';
 import { apiClient, getApiErrorMessage } from '../api/client';
 import { toast } from '../store/toastStore';
-import type { PendingStep } from '../types';
+import type { Category, PendingStep } from '../types';
 
 interface DaySessionCardProps {
   pendingSteps: PendingStep[];
+  categories: Category[];
   freeTimeEnd?: string; // "HH:mm:ss"
   onFinished: () => void;
 }
@@ -34,7 +35,7 @@ const isPastTimeOfDay = (hhmmss: string) => {
 
 // Одна кнопка "Начать/Закончить развиваться" на весь день вместо таймера на каждый шаг.
 // Во время сессии шаги плана отмечаются чек-листом, а настроение и рефлексия спрашиваются один раз, в конце.
-export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySessionCardProps) => {
+export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinished }: DaySessionCardProps) => {
   const [startedAt, setStartedAt] = useState<number | null>(() => {
     const saved = localStorage.getItem(SESSION_KEY);
     return saved ? parseInt(saved) : null;
@@ -47,6 +48,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
   const [checkedThisSession, setCheckedThisSession] = useState<Set<number>>(new Set());
   const [moodScore, setMoodScore] = useState('5');
   const [reflectionNote, setReflectionNote] = useState('');
+  const [fallbackCategoryId, setFallbackCategoryId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -65,6 +67,7 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
     setCheckedThisSession(new Set());
     setMoodScore('5');
     setReflectionNote('');
+    setFallbackCategoryId('');
   };
 
   const handleStart = () => {
@@ -78,6 +81,9 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
 
   const handleFinishClick = () => {
     setDurationOverride(String(Math.max(1, Math.round(elapsedSec / 60))));
+    if (!fallbackCategoryId && categories.length > 0) {
+      setFallbackCategoryId(categories[0].id.toString());
+    }
     setSessionState('finishing');
   };
 
@@ -107,18 +113,28 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
     setIsSubmitting(true);
 
     const completedSteps = pendingSteps.filter((s) => checkedThisSession.has(s.stepId));
-    if (completedSteps.length > 0) {
-      try {
-        await apiClient.post('/activities', {
-          categoryId: completedSteps[0].categoryId,
-          title: completedSteps.length === 1 ? completedSteps[0].title : `Учебная сессия (${completedSteps.length} шага)`,
-          description: completedSteps.map((s) => `- ${s.title}`).join('\n'),
-          durationMinutes: minutes,
-        });
-      } catch (error) {
-        console.error('Ошибка записи активности сессии:', error);
-        toast.error(getApiErrorMessage(error) || 'Не удалось записать активность сессии.');
-      }
+    const categoryId = completedSteps.length > 0 ? completedSteps[0].categoryId : parseInt(fallbackCategoryId);
+
+    if (!categoryId) {
+      toast.error('Выбери категорию для сессии, чтобы её можно было записать.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      await apiClient.post('/activities', {
+        categoryId,
+        title: completedSteps.length === 0
+          ? 'Сессия развития'
+          : completedSteps.length === 1
+            ? completedSteps[0].title
+            : `Сессия развития (${completedSteps.length} шага)`,
+        description: completedSteps.map((s) => `- ${s.title}`).join('\n'),
+        durationMinutes: minutes,
+      });
+    } catch (error) {
+      console.error('Ошибка записи активности сессии:', error);
+      toast.error(getApiErrorMessage(error) || 'Не удалось записать активность сессии.');
     }
 
     try {
@@ -215,9 +231,24 @@ export const DaySessionCard = ({ pendingSteps, freeTimeEnd, onFinished }: DaySes
             </button>
           </div>
 
-          {completedCount > 0 && (
+          {completedCount > 0 ? (
             <p className="text-sm text-green-300 bg-green-500/10 border border-green-500/20 rounded-lg p-2">
               Отмечено выполненными: {completedCount} {completedCount === 1 ? 'шаг' : 'шага'}
+            </p>
+          ) : categories.length > 0 ? (
+            <label className="text-sm text-text-muted flex items-center gap-2">
+              Категория:
+              <select
+                value={fallbackCategoryId}
+                onChange={(e) => setFallbackCategoryId(e.target.value)}
+                className="flex-1 border border-border-subtle bg-surface text-text text-sm p-1.5 rounded-lg"
+              >
+                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              </select>
+            </label>
+          ) : (
+            <p className="text-sm text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+              Нет ни одной категории — сессия сохранится только как заметка настроения. Категории можно создать во вкладке «Цели и категории».
             </p>
           )}
 

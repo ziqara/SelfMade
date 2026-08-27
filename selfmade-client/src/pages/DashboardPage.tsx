@@ -8,6 +8,9 @@ import { DaySessionCard } from '../components/DaySessionCard';
 import { DailyCheckinModal } from '../components/DailyCheckinModal';
 import type { Category, Activity, Mood, DailyInsightResponse, PendingStep } from '../types';
 
+// На случай, если ИИ все же вставит markdown-символы вопреки инструкции в промпте — подчищаем на фронте
+const stripMarkdown = (text: string) => text.replace(/\*\*/g, '').replace(/`/g, '').replace(/^#+\s*/gm, '');
+
 export const DashboardPage = () => {
   const { profile, fetchProfile, isLoading } = useAuthStore();
 
@@ -156,14 +159,16 @@ export const DashboardPage = () => {
             </div>
 
             {aiInsight ? (
-              <div className="whitespace-pre-wrap text-text/90 leading-relaxed font-light mt-4">{aiInsight}</div>
+              <div className="max-h-80 overflow-y-auto pr-1 mt-4">
+                <div className="whitespace-pre-wrap text-text/90 leading-relaxed font-light">{stripMarkdown(aiInsight)}</div>
+              </div>
             ) : (
               <p className="text-text-muted font-light mt-4">
                 Нажми «Получить совет от ИИ», чтобы узнать, чем заняться сегодня вечером.
               </p>
             )}
 
-            <DaySessionCard pendingSteps={pendingSteps} freeTimeEnd={profile.freeTimeEnd} onFinished={handleSessionFinished} />
+            <DaySessionCard pendingSteps={pendingSteps} categories={categories} freeTimeEnd={profile.freeTimeEnd} onFinished={handleSessionFinished} />
           </div>
         </div>
 

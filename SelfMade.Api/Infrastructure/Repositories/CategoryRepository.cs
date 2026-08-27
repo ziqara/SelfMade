@@ -27,9 +27,12 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category?> GetByNameAsync(string name)
     {
-        var normalized = name.Trim().ToLower();
-        return await _context.Categories
-            .FirstOrDefaultAsync(c => c.Name.ToLower() == normalized);
+        // Регистронезависимое сравнение делаем на стороне .NET, а не в SQL (lower() в Postgres
+        // под локалью "C" не умеет корректно работать с кириллицей — категорий все равно немного,
+        // так что грузим все и сравниваем в памяти).
+        var normalized = name.Trim();
+        var all = await _context.Categories.ToListAsync();
+        return all.FirstOrDefault(c => string.Equals(c.Name.Trim(), normalized, StringComparison.OrdinalIgnoreCase));
     }
 
     public async Task AddCategoryAsync(Category category)
