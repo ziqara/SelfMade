@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { moodColor } from '../utils/moodColor';
 import { toDateKey } from '../utils/date';
@@ -9,15 +9,16 @@ interface HistoryCalendarProps {
   moods: Mood[];
   selectedDate: string | null;
   onSelectDate: (date: string | null) => void;
+  viewDate: Date;
+  onViewDateChange: (date: Date) => void;
 }
 
 const WEEKDAYS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 // Месячный календарь: каждый день — кружок, цвет которого отражает настроение в этот день,
 // а маленькая точка снизу — была ли активность. Клик выбирает день для детального просмотра.
-export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate }: HistoryCalendarProps) => {
-  const [viewDate, setViewDate] = useState(() => new Date());
-
+// Отображаемый месяц управляется извне (HistoryPage) — им же фильтруется "Полный список записей".
+export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate, viewDate, onViewDateChange }: HistoryCalendarProps) => {
   const dayData = useMemo(() => {
     const map = new Map<string, { activityCount: number; moodScore: number | null }>();
 
@@ -60,7 +61,7 @@ export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate 
     <div>
       <div className="flex items-center justify-between mb-3">
         <button
-          onClick={() => setViewDate(new Date(year, month - 1, 1))}
+          onClick={() => onViewDateChange(new Date(year, month - 1, 1))}
           className="text-text-muted hover:text-text p-1 rounded transition-colors"
           aria-label="Предыдущий месяц"
         >
@@ -70,7 +71,7 @@ export const HistoryCalendar = ({ activities, moods, selectedDate, onSelectDate 
           {viewDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })}
         </span>
         <button
-          onClick={() => setViewDate(new Date(year, month + 1, 1))}
+          onClick={() => onViewDateChange(new Date(year, month + 1, 1))}
           className="text-text-muted hover:text-text p-1 rounded transition-colors"
           aria-label="Следующий месяц"
         >

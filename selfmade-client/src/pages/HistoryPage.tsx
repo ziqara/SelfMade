@@ -7,8 +7,6 @@ import { HistoryCalendar } from '../components/HistoryCalendar';
 import { GoalProgressRing } from '../components/GoalProgressRing';
 import type { Activity, Mood, UserSummary } from '../types';
 
-const HISTORY_PAGE_SIZE = 5;
-
 const MoodDots = ({ score }: { score: number }) => (
   <div className="flex items-center gap-1.5" title={`Оценка: ${score} из 5`}>
     {[1, 2, 3, 4, 5].map((n) => (
@@ -27,8 +25,7 @@ export const HistoryPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [showFullHistory, setShowFullHistory] = useState(false);
-  const [activitiesShown, setActivitiesShown] = useState(HISTORY_PAGE_SIZE);
-  const [moodsShown, setMoodsShown] = useState(HISTORY_PAGE_SIZE);
+  const [viewDate, setViewDate] = useState(() => new Date());
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -60,6 +57,24 @@ export const HistoryPage = () => {
     () => (selectedDate ? activities.filter((a) => toDateKey(new Date(a.createdAt)) === selectedDate) : []),
     [activities, selectedDate]
   );
+
+  const viewYear = viewDate.getFullYear();
+  const viewMonth = viewDate.getMonth();
+  const monthActivities = useMemo(
+    () => activities.filter((a) => {
+      const d = new Date(a.createdAt);
+      return d.getFullYear() === viewYear && d.getMonth() === viewMonth;
+    }),
+    [activities, viewYear, viewMonth]
+  );
+  const monthMoods = useMemo(
+    () => moods.filter((m) => {
+      const d = new Date(m.createdAt);
+      return d.getFullYear() === viewYear && d.getMonth() === viewMonth;
+    }),
+    [moods, viewYear, viewMonth]
+  );
+  const monthLabel = viewDate.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
 
   if (isLoading) {
     return (
@@ -99,7 +114,14 @@ export const HistoryPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5 items-stretch">
         <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5 h-[480px] flex flex-col justify-center">
-          <HistoryCalendar activities={activities} moods={moods} selectedDate={selectedDate} onSelectDate={setSelectedDate} />
+          <HistoryCalendar
+            activities={activities}
+            moods={moods}
+            selectedDate={selectedDate}
+            onSelectDate={setSelectedDate}
+            viewDate={viewDate}
+            onViewDateChange={setViewDate}
+          />
         </div>
 
         {selectedDate ? (
@@ -180,7 +202,7 @@ export const HistoryPage = () => {
         onClick={() => setShowFullHistory((v) => !v)}
         className="w-full flex items-center justify-between text-left text-text-muted hover:text-text transition-colors border-t border-border-subtle pt-5"
       >
-        <span className="heading-caps text-xs font-medium">Полный список записей</span>
+        <span className="heading-caps text-xs font-medium">Все записи — {monthLabel}</span>
         {showFullHistory ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
       </button>
 
@@ -196,43 +218,35 @@ export const HistoryPage = () => {
 
           {activities.length === 0 ? (
             <p className="text-text-muted font-light bg-surface-2 p-4 rounded-lg">История задач пока пуста.</p>
+          ) : monthActivities.length === 0 ? (
+            <p className="text-text-muted font-light bg-surface-2 p-4 rounded-lg">В этом месяце записей нет — переключите месяц в календаре выше.</p>
           ) : (
-            <>
-              <div className="space-y-4">
-                {activities.slice(0, activitiesShown).map(act => (
-                  <div key={act.id} className="bg-surface-2 p-5 rounded-xl border border-border-subtle shadow-sm hover:border-brand/30 transition-colors">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-medium text-sm text-text">{act.title}</h3>
-                      <span className="bg-green-500/15 text-green-300 font-medium px-3 py-1 rounded-full text-sm shrink-0">
-                        {act.durationMinutes} мин
-                      </span>
-                    </div>
-                    {act.description && (
-                      <p className="text-text-muted font-light text-sm mb-3 whitespace-pre-wrap">{act.description}</p>
-                    )}
-                    <div className="flex justify-between items-center text-xs text-text-muted mt-4 pt-3 border-t border-border-subtle">
-                      <span className="flex items-center gap-1.5 bg-surface px-2 py-1 rounded text-text-muted">
-                        <FolderOpen size={13} />
-                        {act.categoryName ?? 'Без категории'}
-                      </span>
-                      <span>
-                        {new Date(act.createdAt).toLocaleDateString('ru-RU', {
-                          day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-                        })}
-                      </span>
-                    </div>
+            <div className="space-y-4">
+              {monthActivities.map(act => (
+                <div key={act.id} className="bg-surface-2 p-5 rounded-xl border border-border-subtle shadow-sm hover:border-brand/30 transition-colors">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium text-sm text-text">{act.title}</h3>
+                    <span className="bg-green-500/15 text-green-300 font-medium px-3 py-1 rounded-full text-sm shrink-0">
+                      {act.durationMinutes} мин
+                    </span>
                   </div>
-                ))}
-              </div>
-              {activities.length > activitiesShown && (
-                <button
-                  onClick={() => setActivitiesShown((v) => v + HISTORY_PAGE_SIZE)}
-                  className="w-full text-center text-sm text-text-muted hover:text-text transition-colors mt-4 py-2"
-                >
-                  Показать ещё {Math.min(HISTORY_PAGE_SIZE, activities.length - activitiesShown)}
-                </button>
-              )}
-            </>
+                  {act.description && (
+                    <p className="text-text-muted font-light text-sm mb-3 whitespace-pre-wrap">{act.description}</p>
+                  )}
+                  <div className="flex justify-between items-center text-xs text-text-muted mt-4 pt-3 border-t border-border-subtle">
+                    <span className="flex items-center gap-1.5 bg-surface px-2 py-1 rounded text-text-muted">
+                      <FolderOpen size={13} />
+                      {act.categoryName ?? 'Без категории'}
+                    </span>
+                    <span>
+                      {new Date(act.createdAt).toLocaleDateString('ru-RU', {
+                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -245,34 +259,26 @@ export const HistoryPage = () => {
 
           {moods.length === 0 ? (
             <p className="text-text-muted font-light bg-surface-2 p-4 rounded-lg">Дневник настроения пуст.</p>
+          ) : monthMoods.length === 0 ? (
+            <p className="text-text-muted font-light bg-surface-2 p-4 rounded-lg">В этом месяце заметок нет — переключите месяц в календаре выше.</p>
           ) : (
-            <>
-              <div className="space-y-4">
-                {moods.slice(0, moodsShown).map(mood => (
-                  <div key={mood.id} className="bg-blue-500/10 p-5 rounded-xl border border-blue-500/20 shadow-sm hover:border-blue-400/40 transition-colors">
-                    <div className="flex justify-between items-center mb-3">
-                      <MoodDots score={mood.score} />
-                      <span className="text-xs text-text-muted">
-                        {new Date(mood.createdAt).toLocaleDateString('ru-RU', {
-                          day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-text-muted font-light bg-surface p-3 rounded-lg border border-border-subtle whitespace-pre-wrap">
-                      {mood.note}
-                    </p>
+            <div className="space-y-4">
+              {monthMoods.map(mood => (
+                <div key={mood.id} className="bg-blue-500/10 p-5 rounded-xl border border-blue-500/20 shadow-sm hover:border-blue-400/40 transition-colors">
+                  <div className="flex justify-between items-center mb-3">
+                    <MoodDots score={mood.score} />
+                    <span className="text-xs text-text-muted">
+                      {new Date(mood.createdAt).toLocaleDateString('ru-RU', {
+                        day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+                      })}
+                    </span>
                   </div>
-                ))}
-              </div>
-              {moods.length > moodsShown && (
-                <button
-                  onClick={() => setMoodsShown((v) => v + HISTORY_PAGE_SIZE)}
-                  className="w-full text-center text-sm text-text-muted hover:text-text transition-colors mt-4 py-2"
-                >
-                  Показать ещё {Math.min(HISTORY_PAGE_SIZE, moods.length - moodsShown)}
-                </button>
-              )}
-            </>
+                  <p className="text-text-muted font-light bg-surface p-3 rounded-lg border border-border-subtle whitespace-pre-wrap">
+                    {mood.note}
+                  </p>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
