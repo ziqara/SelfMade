@@ -238,7 +238,7 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
           )}
 
           {pendingSteps.length > 0 && (
-            <ul className="space-y-2">
+            <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
               {pendingSteps.map((step) => (
                 <li key={step.stepId} className="flex items-start gap-2 bg-surface-2 border border-border-subtle rounded-lg p-3">
                   <input
@@ -248,7 +248,7 @@ export const DaySessionCard = ({ pendingSteps, categories, freeTimeEnd, onFinish
                     className="mt-1 w-4 h-4 rounded text-brand shrink-0 cursor-pointer"
                   />
                   <div>
-                    <span className="text-xs font-semibold text-brand-light uppercase tracking-wide">{step.goalTitle}</span>
+                    <span className="text-[10px] font-medium text-brand-light/80 uppercase tracking-wide">{step.goalTitle}</span>
                     <p className={`font-medium text-sm ${checkedThisSession.has(step.stepId) ? 'text-text-muted line-through' : 'text-text'}`}>
                       {step.title}
                     </p>
