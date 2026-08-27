@@ -27,12 +27,12 @@
 - motion для анимаций, lucide-react для иконок
 
 **База данных**
-- PostgreSQL. Миграций EF Core в репозитории нет — схема поднимается из готового снимка `SelfMade.Api/schema.sql` (см. раздел "База данных" ниже).
+- PostgreSQL. Миграций EF Core в репозитории нет — схема поднимается из готового снимка `selfmade-api/schema.sql` (см. раздел "База данных" ниже).
 
 ## Структура репозитория
 
 ```
-SelfMade.Api/               backend, ASP.NET Core Web API
+selfmade-api/                backend, ASP.NET Core Web API
   Domain/                    доменные сущности (User, Category, UserInterest, ActivityLog, ...)
   Application/Interfaces/    интерфейсы репозиториев и сервисов
   Infrastructure/            EF Core DbContext, реализации репозиториев, интеграция с Gemini
@@ -69,7 +69,7 @@ selfmade-client/            frontend, React + TypeScript + Vite
 ### Backend
 
 ```bash
-cd SelfMade.Api
+cd selfmade-api
 cp appsettings.example.json appsettings.json
 ```
 
@@ -111,7 +111,7 @@ npm run dev
 
 ## База данных
 
-Миграций EF Core в репозитории нет: `SelfMade.Api/schema.sql` — снимок реальной схемы Postgres (7 таблиц, снятый через `pg_dump`, вручную приведен в порядок), а `AppDbContext` описывает маппинг на нее (snake_case-колонки через Fluent API). Файл проверен: применяется на пустую базу без ошибок и создает ровно те таблицы, с которыми работает код.
+Миграций EF Core в репозитории нет: `selfmade-api/schema.sql` — снимок реальной схемы Postgres (7 таблиц, снятый через `pg_dump`, вручную приведен в порядок), а `AppDbContext` описывает маппинг на нее (snake_case-колонки через Fluent API). Файл проверен: применяется на пустую базу без ошибок и создает ровно те таблицы, с которыми работает код.
 
 При изменении домена схему нужно обновить в базе, синхронизировать маппинг в `AppDbContext.cs` и обновить `schema.sql` — единого источника правды для этого в проекте пока нет.
 

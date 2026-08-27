@@ -369,4 +369,4 @@ appsettings.*.json
 .env
 *.pem
 *.key
-/SelfMade.Api/appsettings.json
+/selfmade-api/appsettings.json
