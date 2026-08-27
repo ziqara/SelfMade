@@ -370,3 +370,6 @@ appsettings.*.json
 *.pem
 *.key
 /selfmade-api/appsettings.json
+
+# Локальные конфигурации редактора/инструментов разработки
+.claude/
