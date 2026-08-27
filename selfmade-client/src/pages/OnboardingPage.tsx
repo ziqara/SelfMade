@@ -44,8 +44,8 @@ export const OnboardingPage = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-2xl bg-surface/60 backdrop-blur-2xl border border-border-subtle rounded-2xl shadow-2xl shadow-black/30 p-8 md:p-10">
-        <h2 className="heading-caps text-xl font-light text-text mb-2 text-center">Настройка профиля</h2>
-        <p className="text-text-muted font-light mb-6 text-center">Заполни данные, чтобы ИИ мог составить расписание.</p>
+        <h2 className="heading-caps text-2xl font-light text-text mb-2 text-center">Настройка профиля</h2>
+        <p className="text-text-muted font-light text-sm mb-6 text-center">Заполни данные, чтобы ИИ мог составить расписание.</p>
 
         <ProfileForm
           initialValues={{ freeTimeStart: '19:30', freeTimeEnd: '23:00', sleepTime: '23:30' }}

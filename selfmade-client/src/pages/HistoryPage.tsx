@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ListChecks, Smile, FolderOpen, GraduationCap } from 'lucide-react';
+import { ListChecks, Smile, FolderOpen, GraduationCap, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { moodColor } from '../utils/moodColor';
 import { toDateKey } from '../utils/date';
@@ -24,6 +24,7 @@ export const HistoryPage = () => {
   const [summary, setSummary] = useState<UserSummary | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [showFullHistory, setShowFullHistory] = useState(false);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -62,7 +63,8 @@ export const HistoryPage = () => {
 
   if (isLoading) {
     return (
-      <div className="max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle animate-pulse">
+      <div className="min-h-[80vh] flex items-center justify-center">
+      <div className="w-full max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle animate-pulse">
         <div className="h-8 w-64 bg-surface-2 rounded mb-8" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
           <div className="space-y-4">
@@ -75,11 +77,13 @@ export const HistoryPage = () => {
           </div>
         </div>
       </div>
+      </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
+    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="w-full max-w-6xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
       <h1 className="heading-caps text-2xl font-light text-text mb-8">История прогресса</h1>
 
       {summary && summary.goalsProgress.length > 0 && (
@@ -100,7 +104,7 @@ export const HistoryPage = () => {
 
         {selectedDate ? (
           <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
-            <h2 className="heading-caps text-xs font-medium text-text mb-4">
+            <h2 className="heading-caps text-sm font-medium text-text mb-4">
               {new Date(selectedDate).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
             </h2>
             {selectedDayMoods.length === 0 && selectedDayActivities.length === 0 ? (
@@ -127,7 +131,7 @@ export const HistoryPage = () => {
           </div>
         ) : (
           <div className="bg-surface-2/50 border border-border-subtle rounded-xl p-5">
-            <h2 className="heading-caps text-xs font-medium text-text mb-4 flex items-center gap-2">
+            <h2 className="heading-caps text-sm font-medium text-text mb-4 flex items-center gap-2">
               <GraduationCap size={15} className="text-brand-light" />
               Чему ты научился
             </h2>
@@ -169,7 +173,16 @@ export const HistoryPage = () => {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+      <button
+        onClick={() => setShowFullHistory((v) => !v)}
+        className="w-full flex items-center justify-between text-left text-text-muted hover:text-text transition-colors border-t border-border-subtle pt-5"
+      >
+        <span className="heading-caps text-xs font-medium">Полный список записей</span>
+        {showFullHistory ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </button>
+
+      {showFullHistory && (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 mt-5">
 
         {/* Колонка 1: История активностей */}
         <div>
@@ -185,7 +198,7 @@ export const HistoryPage = () => {
               {activities.map(act => (
                 <div key={act.id} className="bg-surface-2 p-5 rounded-xl border border-border-subtle shadow-sm hover:border-brand/30 transition-colors">
                   <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-medium text-lg text-text">{act.title}</h3>
+                    <h3 className="font-medium text-sm text-text">{act.title}</h3>
                     <span className="bg-green-500/15 text-green-300 font-medium px-3 py-1 rounded-full text-sm shrink-0">
                       {act.durationMinutes} мин
                     </span>
@@ -241,6 +254,8 @@ export const HistoryPage = () => {
         </div>
 
       </div>
+      )}
+    </div>
     </div>
   );
 };

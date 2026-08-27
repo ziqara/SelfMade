@@ -30,8 +30,9 @@ const STEPS = [
 
 export const HelpPage = () => {
   return (
-    <div className="max-w-4xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-6 md:p-7 border border-border-subtle">
-      <h1 className="heading-caps text-xl font-light text-text mb-1 text-center">Как это работает</h1>
+    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="w-full max-w-4xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-6 md:p-7 border border-border-subtle">
+      <h1 className="heading-caps text-2xl font-light text-text mb-1 text-center">Как это работает</h1>
       <p className="text-text-muted font-light text-sm mb-5 text-center">
         Коротко про весь цикл — от настройки профиля до совета от ИИ на вечер.
       </p>
@@ -54,6 +55,7 @@ export const HelpPage = () => {
         Совет: заметки настроения и рефлексия — не формальность. ИИ читает их при следующем совете,
         так что чем честнее и конкретнее, тем полезнее рекомендации.
       </p>
+    </div>
     </div>
   );
 };

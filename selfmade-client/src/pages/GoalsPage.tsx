@@ -101,9 +101,10 @@ export const GoalsPage = () => {
   );
 
   return (
-    <div className="max-w-3xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
+    <div className="min-h-[80vh] flex items-center justify-center">
+    <div className="w-full max-w-3xl mx-auto bg-surface/60 backdrop-blur-2xl rounded-xl shadow-sm p-8 border border-border-subtle">
       <h1 className="heading-caps text-2xl font-light text-text mb-2">Цели и категории</h1>
-      <p className="text-text-muted font-light mb-8">
+      <p className="text-text-muted font-light text-sm mb-8">
         Скажи в «Профиле», что хочешь освоить — конкретные цели внутри направления придумывает ИИ.
         Тебе останется только отмечать шаги по пути и оценивать настроение.
       </p>
@@ -134,7 +135,7 @@ export const GoalsPage = () => {
             {generateButton}
           </div>
           {interests.length === 0 ? (
-            <p className="text-text-muted font-light">Цели пока не добавлены.</p>
+            <p className="text-text-muted font-light text-sm">Цели пока не добавлены.</p>
           ) : (
             <ul className="space-y-3">
               {interests.map(interest => (
@@ -143,7 +144,7 @@ export const GoalsPage = () => {
                     {interest.isDevelopmentGoal
                       ? <Target size={18} className="text-rose-400 shrink-0 mt-0.5" />
                       : <Bookmark size={18} className="text-text-muted shrink-0 mt-0.5" />}
-                    <span className="font-normal text-text">{interest.title}</span>
+                    <span className="font-medium text-sm text-text">{interest.title}</span>
                   </div>
                   {interest.isDevelopmentGoal && (
                     <GoalPlanCard goalId={interest.id} goalTitle={interest.title} />
@@ -206,7 +207,7 @@ export const GoalsPage = () => {
 
             {categories.length > 0 && (
               <div className="md:col-span-2">
-                <h2 className="heading-caps text-xs font-medium mb-3 text-text-muted">Доступные категории</h2>
+                <h2 className="heading-caps text-sm font-medium mb-3 text-text-muted">Доступные категории</h2>
                 <div className="flex flex-wrap gap-2">
                   {categories.map(c => (
                     <span key={c.id} className="px-3 py-1 bg-surface-2 border border-border-subtle text-text-muted rounded-full text-sm font-light">
@@ -219,6 +220,7 @@ export const GoalsPage = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };

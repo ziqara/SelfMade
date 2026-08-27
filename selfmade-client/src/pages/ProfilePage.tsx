@@ -39,7 +39,7 @@ export const ProfilePage = () => {
     <div className="min-h-[80vh] flex items-center justify-center">
       <div className="w-full max-w-3xl bg-surface/60 backdrop-blur-2xl rounded-2xl shadow-2xl shadow-black/30 p-8 md:p-10 border border-border-subtle">
         <h1 className="heading-caps text-2xl font-light text-text mb-2 text-center">Настройки ИИ-наставника</h1>
-        <p className="text-text-muted font-light mb-8 text-center">Обнови свое расписание и общее направление, чтобы ИИ давал более точные советы.</p>
+        <p className="text-text-muted font-light text-sm mb-8 text-center">Обнови свое расписание и общее направление, чтобы ИИ давал более точные советы.</p>
 
         <ProfileForm
           initialValues={{
